@@ -161,7 +161,7 @@ button.kh{background:#1f6f5c}
     </div>
     <div style="flex:1 1 200px">
       <label for="nameMethod">Cách tính họ tên</label>
-      <select id="nameMethod"><option value="all">Tất cả các cách</option><option value="az">Chữ cái A=1 … Z=26</option><option value="py">Pythagoras (1–9)</option><option value="dem">Đếm số chữ cái</option><option value="">Không luận họ tên</option></select>
+      <select id="nameMethod"><option value="all">Tất cả các cách</option><option value="az">Chữ cái A=1 … Z=26</option><option value="py">Pythagoras (1–9)</option><option value="">Không luận họ tên</option></select>
     </div>
     <div class="f">
       <label for="job">Nghề nghiệp</label>
@@ -218,7 +218,7 @@ button.kh{background:#1f6f5c}
       <option value="all">Tất cả các cách (so sánh)</option>
       <option value="az">Bảng chữ cái A=1 … Z=26</option>
       <option value="py">Pythagoras (chữ cái quy về 1–9)</option>
-      <option value="dem">Đếm số chữ cái mỗi chữ</option>
+      
       <option value="net">Số nét chữ Hán (nhập tay)</option></select></div>
     <div class="f"><label for="htNet">Số nét từng chữ (cho cách chữ Hán)</label><input id="htNet" inputmode="numeric" autocomplete="off" placeholder="VD: 7 11 3"></div>
     <div class="btns">
@@ -226,7 +226,7 @@ button.kh{background:#1f6f5c}
       <button type="submit" data-view="kh" class="kh">Báo cáo khách hàng</button>
     </div>
   </form>
-  <div class="hint">Theo sách (chương 1 tr.62–67, chương 3 tr.209–213): mỗi chữ trong họ tên đổi thành một con số, ghép liền thành dãy rồi tách cặp như số căn cước. Mỗi chữ cai quản một giai đoạn đời: 70 tuổi chia đều cho số chữ (2 chữ: 0–35–70; 3 chữ: 0–23–46–70; 4 chữ: 0–17–35–53–70), sau 70 tuổi chu kỳ lặp lại. Sách tính bằng số nét chữ Hán; với tên tiếng Việt, app tính thêm theo bảng chữ cái, Pythagoras và số chữ cái để so sánh. Nếu chữ đầu có số nhỏ hơn 10 thì thêm số 0 đằng trước.</div>
+  <div class="hint">Theo sách (chương 1 tr.62–67, chương 3 tr.209–213): mỗi chữ trong họ tên đổi thành một con số, ghép liền thành dãy rồi tách cặp như số căn cước. Mỗi chữ cai quản một giai đoạn đời: 70 tuổi chia đều cho số chữ (2 chữ: 0–35–70; 3 chữ: 0–23–46–70; 4 chữ: 0–17–35–53–70), sau 70 tuổi chu kỳ lặp lại. Sách tính bằng số nét chữ Hán; với tên tiếng Việt, app tính theo bảng chữ cái A=1…Z=26 (bảng chữ cái của sách) và hệ Pythagoras mà sách nhắc tới. Nếu chữ đầu có số nhỏ hơn 10 thì thêm số 0 đằng trước.</div>
 </div>
 <div class="card res" id="res-ht"><div class="toolbar"><button type="button" class="cpy" data-for="art-ht">Sao chép sang Word</button><span class="small msg"></span></div><div id="art-ht"></div></div>
 </section>
@@ -315,14 +315,14 @@ button.kh{background:#1f6f5c}
       <textarea id="chList" placeholder="0981234567&#10;0912 345 678&#10;…"></textarea></div>
     <div class="btns"><button type="submit" data-view="detail">Báo cáo chi tiết</button><button type="submit" data-view="kh" class="kh">Báo cáo khách hàng</button></div>
   </form>
-  <div class="hint">Nếu có dán danh sách: app chấm điểm và xếp hạng các số đó. Nếu để trống: app tự tạo các tổ hợp số đúng đầu số nhà mạng đã chọn, theo yêu cầu và bản mệnh. Các số tự tạo là tổ hợp lý thuyết, cần kiểm tra số còn trống tại cửa hàng hoặc ứng dụng của nhà mạng.</div>
+  <div class="hint">Nếu có dán danh sách: app luận từng số theo sách và sắp xếp số đáp ứng nhiều tiêu chí của sách lên trước. Nếu để trống: app tự tạo các tổ hợp số đúng đầu số nhà mạng đã chọn, theo yêu cầu và bản mệnh. Các số tự tạo là tổ hợp lý thuyết, cần kiểm tra số còn trống tại cửa hàng hoặc ứng dụng của nhà mạng.</div>
 </div>
 <div class="card res" id="res-chon"><div class="toolbar"><button type="button" class="cpy" data-for="art-chon">Sao chép sang Word</button><span class="small msg"></span></div>
   <div class="prog" id="chProg" style="display:none"><div></div></div><div id="art-chon"></div></div>
 </section>
 
 
-<p class="small" style="text-align:center">Nội dung tóm lược từ tài liệu Phong Thủy Số. Điểm số do công cụ tự quy đổi để dễ so sánh, sách không có thang điểm. Cách tính mỗi cặp ứng với một năm là theo người dùng thiết lập. Thuật xem số dân gian, chỉ nên dùng để tham khảo.</p>
+<p class="small" style="text-align:center">Nội dung tóm lược từ tài liệu Phong Thủy Số. Cách tính mỗi cặp ứng với một năm là theo người dùng thiết lập. Thuật xem số dân gian, chỉ nên dùng để tham khảo.</p>
 </div>
 
 
@@ -659,6 +659,23 @@ function analyze(s){
   return {pairs, score, zeroCount, lastDigit, tailDigits, lead, trail};
 }
 
+/* Kết luận theo nguyên tắc sách: cặp cuối thể hiện kết quả, đối chiếu số cặp cát – hung (không chấm điểm) */
+function bookVerdict(P){
+  const K = P.map(p=>p.key);
+  if (!K.length) return {lab:["Chưa đủ dữ liệu","p"], why:""};
+  let i = K.length-1; while (i>0 && K[i]==="PV") i--;
+  const tail = K[i], g = K.filter(k=>STARS[k].type==="good").length, b = K.filter(k=>STARS[k].type==="bad").length;
+  const tg = STARS[tail].type==="good", tb = STARS[tail].type==="bad";
+  let lab;
+  if (b===0) lab = ["Tốt – toàn cát tinh / Phục Vị","g"];
+  else if (tg && g>=b) lab = ["Tốt – cát nhiều hơn hung, kết thúc bằng cát tinh","g"];
+  else if (tg) lab = ["Trung bình – hung nhiều nhưng kết thúc bằng cát tinh","p"];
+  else if (tb && g>b) lab = ["Trung bình – cát nhiều nhưng kết thúc bằng hung tinh","p"];
+  else if (tb) lab = ["Cần hóa giải – hung tinh chiếm ưu thế và ở cuối dãy","b"];
+  else lab = [g>=b?"Trung bình – thiên về ổn định":"Cần hóa giải – hung nhiều hơn cát", g>=b?"p":"b"];
+  const why = `Theo sách: cặp cuối thể hiện kết quả (${STARS[tail].name}); dãy có ${g} cặp cát tinh, ${b} cặp hung tinh.`;
+  return {lab, why, tail, g, b};
+}
 function label(score){
   if (score>=75) return ["Rất tốt","ok"];
   if (score>=60) return ["Tốt","ok"];
@@ -704,7 +721,7 @@ function render(s, gender, startYear, opt){
   const pvs = n-goods-bads;
   const order = Object.keys(strength).sort((a,b)=>strength[b]-strength[a]);
   const dom = order[0];
-  const [lab, lc] = label(R.score);
+  const BV = bookVerdict(R.pairs); const lab = BV.lab[0], lc = BV.lab[1]==="g"?"ok":BV.lab[1]==="b"?"warn":"";
   const last = P[n-1];
   const TTB = (opt.cccd || opt.birth) && typeof ttBasics==="function" ? ttBasics(opt, gender) : null;
   const TTX = TTB && typeof phoneVsTT==="function" ? phoneVsTT(s, R, P, gender, startYear, opt) : null;
@@ -736,11 +753,10 @@ function render(s, gender, startYear, opt){
   let summary = `Có <b>${goods}</b> cặp cát tinh, <b>${bads}</b> cặp hung tinh`+(pvs?`, <b>${pvs}</b> cặp Phục Vị`:"")+`. `+
     `Năng lượng nổi trội nhất: ${starTag(dom)} (${STARS[dom].kw}). `+
     `Cặp cuối – nơi thể hiện kết quả – là ${starTag(last.key)}.` +
-    (TTX ? ` <br>Mức hợp với bản mệnh (căn cước, ngày sinh): <span class="tag ${TTX.label[1]}">${TTX.label[0]} – ${TTX.score}/100</span> (xem mục 9).` : "");
+    (TTX ? ` <br>Mức hợp với bản mệnh (căn cước, ngày sinh): <span class="tag ${TTX.label[1]}">${TTX.label[0]}</span> (xem mục 9).` : "");
   document.getElementById("cVerdict").innerHTML = `<h2>1. Kết luận chung</h2>
     <div class="verdict">
-      <div class="score"><b>${R.score}</b><span>/ 100</span></div>
-      <div class="vtext"><h3 class="${lc}" style="margin:0 0 4px;font-size:20px">${lab}</h3><div>${summary}</div></div>
+      <div class="vtext"><h3 class="${lc}" style="margin:0 0 4px;font-size:20px">${lab}</h3><div class="small">${BV.why}</div><div>${summary}</div></div>
     </div>
     <h3>Dãy phân tích</h3><div class="digits">${dig}</div>
     <div class="chips">${P.map(p=>`<div class="chip ${CLS[T(p.key)]}"><div class="n">${esc(p.raw)}</div><div class="s">${STARS[p.key].name}${p.level?" "+p.level:""}</div></div>`).join("")}</div>
@@ -942,7 +958,7 @@ function render(s, gender, startYear, opt){
   const gtxt = gender==="nam"?"Nam":gender==="nu"?"Nữ":"Không rõ";
   document.getElementById("aHead").innerHTML = `<h1>BÀI PHÂN TÍCH SỐ ĐIỆN THOẠI ${esc(pretty)}</h1>
     <div class="meta">Phương pháp Phong Thủy Số · Giới tính chủ số: ${gtxt}${startYear?` · Năm bắt đầu dùng: ${startYear}`:""} · Ngày lập: ${dstr}</div>`;
-  document.getElementById("aFoot").innerHTML = `Nội dung tóm lược từ tài liệu Phong Thủy Số. Điểm số do công cụ tự quy đổi, sách không có thang điểm. Cách tính mỗi cặp ứng với một năm do người dùng thiết lập. Thuật xem số dân gian, chỉ nên dùng để tham khảo.`;
+  document.getElementById("aFoot").innerHTML = `Nội dung tóm lược từ tài liệu Phong Thủy Số. Cách tính mỗi cặp ứng với một năm do người dùng thiết lập. Thuật xem số dân gian, chỉ nên dùng để tham khảo.`;
   document.getElementById("articleKH").innerHTML = buildKH({s,P,n,R,cnt,strength,order,combos,specials,last,tail3,lab,gender,startYear,opt,JOB,pretty,dstr,ccKH: TTX?TTX.kh:"", ttb: TTB});
   CURRENT = {pretty, file: "PhanTich_"+full, fileKH: "BaoCao_"+full};
   setView(opt.view||"detail");
@@ -1112,7 +1128,7 @@ function buildKH(X){
   // 1. Tổng quan
   const lastKey = (()=>{ if (last.key!=="PV") return last.key; let j=n-2; while(j>=0&&P[j].key==="PV") j--; return j>=0?P[j].key:"PV"; })();
   const lc = /tốt/i.test(lab)?"g": /trung/i.test(lab)?"p":"b";
-  let tong = `<p class="lead">Số điện thoại của ${name?"quý khách "+esc(name):"quý khách"} được đánh giá: <span class="kv tag ${lc}">${lab}</span></p>
+  let tong = `<p class="lead">Số điện thoại của ${name?"quý khách "+esc(name):"quý khách"} được đánh giá: <span class="kv tag ${lc}">${lab.split(" – ")[0]}</span></p>
     <p>Năng lượng nổi bật nhất của số thiên về <b>${STARS[order[0]].kw}</b>${order[1]?`, tiếp đến là <b>${STARS[order[1]].kw}</b>`:""}. `+
     `Số có ${goodK.length?"nhiều yếu tố thuận lợi":"ít yếu tố thuận lợi"}${badK.length?" xen lẫn một số điểm cần lưu ý":""}. `+
     `Phần cuối của số – thể hiện kết quả về lâu dài – hướng về <b>${STARS[lastKey].kw}</b>${T(lastKey)==="good"?", đây là điểm cộng lớn.":T(lastKey)==="bad"?", đây là điểm cần chú ý nhất.":"."}</p>`;
@@ -1245,12 +1261,7 @@ function curEl(){ return document.getElementById(CURRENT && CURRENT.view==="kh" 
 function buildWordHTML(src){
   const el = (src || curEl()).cloneNode(true);
   // score circle -> text
-  el.querySelectorAll(".score").forEach(x=>{
-    const sc = x.querySelector("b").textContent;
-    const pEl = document.createElement("p");
-    pEl.innerHTML = `<b style="font-size:16pt;color:#9e1b1b">Điểm: ${sc}/100</b>`;
-    x.replaceWith(pEl);
-  });
+  el.querySelectorAll(".score").forEach(x=>x.remove());
   // chips -> one table, max 8 per row
   el.querySelectorAll(".chips").forEach(x=>{
     const chips=[...x.querySelectorAll(".chip")];
@@ -1652,17 +1663,21 @@ function phoneVsTT(s, R, P, gender, startYear, opt){
   const shared = [...ttGood].filter(k=>K.includes(k));
   let ratio = null;
   if (kua){ const ds = s.split("").filter(c=>!/[05]/.test(c)); ratio = ds.length ? ds.filter(c=>GROUP_DIGITS[kua.nhom].includes(c)).length/ds.length : null; }
-  let sc = 50 + (needs.length ? 30*okN/needs.length : 12) + (R.score-50)*0.5 - 8*tang.length - (lastBadSame?6:0) + 3*shared.length + (ratio!==null ? (ratio-0.5)*20 : 0);
-  sc = Math.max(0, Math.min(100, Math.round(sc)));
-  const lab = sc>=75?["Rất hợp","g"]: sc>=60?["Hợp","g"]: sc>=45?["Tạm hợp","p"]:["Chưa hợp","b"];
+  // Sách: số hậu thiên dùng để bổ khuyết – hợp khi hóa giải được hung tinh của bản mệnh và không lặp lại hung tinh đó
+  let lab;
+  if (!needs.length) lab = isBad(K[K.length-1]) ? ["Tạm hợp","p"] : ["Hợp","g"];
+  else if (okN===needs.length && !tang.length && !lastBadSame) lab = ["Hợp","g"];
+  else if (okN>0) lab = ["Hợp một phần","p"];
+  else lab = ["Chưa hợp","b"];
+  const sc = null;
   // phone pair for this year
   let yearPair = null;
   if (startYear){ const n=P.length, idx=((NOW_Y-startYear)%n+n)%n; yearPair = P[idx]; }
 
   // ----- chi tiết -----
   let d = `<h2>9. Đối chiếu với bản mệnh (căn cước, ngày sinh)</h2>
-    <div class="verdict"><div class="score"><b>${sc}</b><span>/ 100</span></div><div class="vtext"><h3 class="${lab[1]==="b"?"warn":lab[1]==="g"?"ok":""}" style="margin:0;font-size:20px">${lab[0]}</h3>
-    <div class="small">Mức hợp tự quy đổi từ: số hung tinh bản mệnh được hóa giải, chất lượng số điện thoại, hung tinh trùng lặp, cát tinh chung và tỉ lệ chữ số hợp cung mệnh.</div></div></div>`;
+    <div class="verdict"><div class="vtext"><h3 class="${lab[1]==="b"?"warn":lab[1]==="g"?"ok":""}" style="margin:0;font-size:20px">${lab[0]}</h3>
+    <div class="small">Theo sách: số điện thoại là số hậu thiên dùng để bổ khuyết bản mệnh – hợp khi có tổ hợp hóa giải được hung tinh của căn cước / ngày sinh${needs.length?` (hóa giải được ${okN}/${needs.length})`:""}, không lặp lại hung tinh đó và không kết thúc bằng hung tinh.</div></div></div>`;
   d += ttProfileHTML(cc, bda, kua, gender);
   if (cc) d += `<h3>Vận trình bản mệnh theo tuổi</h3>` + ageTable(cc);
   if (cc && cc.cur.length) d += `<p><b>Giai đoạn hiện tại (${cc.age} tuổi):</b> ${cc.cur.map(p=>`${esc(p.raw)} ${starTag(p.key)} – ${STAGE[p.key]}`).join(" / ")}${cc.cur.length>1?" <i>(năm giao giữa hai giai đoạn – cần đặc biệt chú ý)</i>":""}</p>`;
@@ -1694,7 +1709,7 @@ function phoneVsTT(s, R, P, gender, startYear, opt){
   if (ratio!==null){ if (ratio>=0.6) kg.push("Các chữ số phần lớn hợp với cung mệnh của quý khách."); else if (ratio<0.4) kw.push("Nhiều chữ số không hợp với cung mệnh của quý khách."); }
   k += (kg.length?`<p class="sub ok">Điểm hợp</p>${ul(kg,"ok")}`:"") + (kw.length?`<p class="sub warn">Điểm chưa hợp</p>${ul(kw,"warn")}`:"");
   if (cc && cc.cur.length) k += `<p><b>Giai đoạn hiện tại của bản mệnh:</b> ${cc.cur.map(p=>STAGE[p.key]).join(" ")}</p>`;
-  return {detail:d, kh:k, score:sc, label:lab};
+  return {detail:d, kh:k, label:lab};
 }
 
 /* ---------- TAB: Căn cước – Ngày sinh ---------- */
@@ -1776,16 +1791,12 @@ function renderXe(view){
   for (let i=0;i+3<=K.length;i++){ const t=K.slice(i,i+3).join(","); if (XE_GOOD3[t]) triples.push([P.slice(i,i+3).map(p=>p.raw).join("-"), XE_GOOD3[t]]); }
   if (!triples.length) for (let i=0;i+2<=K.length;i++) if (K[i]==="TY"&&K[i+1]==="TY") triples.push([P[i].raw+"-"+P[i+1].raw, "Tài phú + Tài phú: giàu có."]);
   let letSc = 0; letters.forEach(c=>{ if (XE_LET[c]) letSc += XE_LET[c][0]; });
-  let sc = 60 + 7*((cnt.TY||0)+(cnt.SK||0)) + (cnt.DN||0);
-  P.forEach(p=>{ if (isBad(p.key)) sc -= p.fives ? 11 : 8; });
-  sc -= groups.length>=2 ? 8 : 0; sc += letSc*2 + (triples.length?8:0);
-  sc = Math.max(0, Math.min(100, Math.round(sc)));
-  const lab = sc>=75?["Tốt","g"]: sc>=60?["Khá","g"]: sc>=45?["Trung bình","p"]:["Cần cẩn trọng","b"];
+  const BVx = bookVerdict(P), lab = BVx.lab;
   const cc = val("xeCC") ? ccAnalyze(val("xeCC")) : null;
 
   let h = head("LUẬN GIẢI BIỂN SỐ XE", `Biển số: <b>${esc(val("xePlate").toUpperCase())}</b>${prov?` · Bỏ mã tỉnh ${prov}`:""} · Dãy tính: <b>${esc(s)}</b> · Ngày lập: ${today()}`);
-  h += sect("1. Kết luận", `<div class="verdict"><div class="score"><b>${sc}</b><span>/ 100</span></div><div class="vtext"><h3 class="${lab[1]==="b"?"warn":lab[1]==="g"?"ok":""}" style="margin:0;font-size:20px">${lab[0]}</h3>
-    <div>Mức rủi ro sự cố theo sách: <span class="tag ${risk[1]}">${risk[0]}</span>${groups.length?` – có tổ hợp ${groups.join(", ")}.`:"."}</div></div></div>${chipsOf(P)}
+  h += sect("1. Kết luận", `<div class="verdict"><div class="vtext"><h3 class="${lab[1]==="b"?"warn":lab[1]==="g"?"ok":""}" style="margin:0;font-size:20px">${lab[0]}</h3>
+    <div class="small">${BVx.why}</div><div>Mức rủi ro sự cố theo sách: <span class="tag ${risk[1]}">${risk[0]}</span>${groups.length?` – có tổ hợp ${groups.join(", ")}.`:"."}</div></div></div>${chipsOf(P)}
     <p class="small">Sách: biển đại cát chỉ giảm xác suất sự cố, không loại bỏ hoàn toàn; biển hung cũng không phải lúc nào cũng xấu – còn tùy vận thế và ý thức lái xe.</p>`);
   h += sect("2. Ý nghĩa từng cặp", `<table><tr><th>Cặp</th><th>Sao</th><th>Ý nghĩa với xe</th></tr>${P.map(p=>`<tr><td><b>${esc(p.raw)}</b></td><td>${starTag(p.key)}</td><td>${XE_CAT[p.key]}${p.fives?" – <b>có số 5: tăng cường</b>":""}${p.zeros?" – có số 0: năng lượng bị ẩn":""}</td></tr>`).join("")}</table>
     ${(R.trail==="5"||/55/.test(s))?`<p>Số 5 ở cuối hoặc 55: kéo dài, duy trì năng lượng của cặp đứng trước.</p>`:""}`);
@@ -1814,8 +1825,7 @@ function renderNha(view){
   const P = ccPairs(s), K = P.map(p=>p.key);
   const cnt = {}; K.forEach(k=>cnt[k]=(cnt[k]||0)+1);
   const g = K.filter(isGood).length + (cnt.PV||0)*0.5, b = K.filter(isBad).length;
-  const sc = Math.max(0, Math.min(100, Math.round(50 + 50*(g-b)/Math.max(1,K.length))));
-  const lab = sc>=70?["Tốt","g"]: sc>=55?["Khá","g"]: sc>=40?["Trung bình","p"]:["Cần hóa giải","b"];
+  const BVn = bookVerdict(P), lab = BVn.lab;
   const has = k=>cnt[k]>0;
   const eff = [];
   eff.push(["Sức khỏe & tinh thần", has("SK")||has("TY")||has("DN") ? ["ok","Có Sinh Khí / Thiên Y / Diên Niên: giúp sức khỏe tốt, vui vẻ, gắn kết, trí tuệ phát triển."] : null, has("TM")||has("NQ") ? ["warn","Có Tuyệt Mệnh / Ngũ Quỷ: dễ căng thẳng, bệnh tật, bất ổn cảm xúc, xung đột."] : null]);
@@ -1833,7 +1843,7 @@ function renderNha(view){
   }
   const cc = val("nhaCC") ? ccAnalyze(val("nhaCC")) : null;
   let h = head("LUẬN GIẢI SỐ NHÀ", `Địa chỉ: <b>${esc(parts.join(" / "))}</b> · Dãy tính: <b>${esc(s)}</b> · Ngày lập: ${today()}`);
-  h += sect("1. Kết luận", `<div class="verdict"><div class="score"><b>${sc}</b><span>/ 100</span></div><div class="vtext"><h3 class="${lab[1]==="b"?"warn":lab[1]==="g"?"ok":""}" style="margin:0;font-size:20px">${lab[0]}</h3><div>${K.filter(isGood).length} cặp cát tinh, ${b} cặp hung tinh, ${cnt.PV||0} cặp Phục Vị. Sách: số nhà là từ trường mạnh nhất của địa chỉ.</div></div></div>${chipsOf(P)}`);
+  h += sect("1. Kết luận", `<div class="verdict"><div class="vtext"><h3 class="${lab[1]==="b"?"warn":lab[1]==="g"?"ok":""}" style="margin:0;font-size:20px">${lab[0]}</h3><div class="small">${BVn.why}</div><div>${K.filter(isGood).length} cặp cát tinh, ${b} cặp hung tinh, ${cnt.PV||0} cặp Phục Vị. Sách: số nhà là từ trường mạnh nhất của địa chỉ.</div></div></div>${chipsOf(P)}`);
   h += sect("2. Tác động lên người ở", eff.map(([t,a,c])=>(a||c)?`<p class="sub">${t}</p>${ul([a,c].filter(Boolean).map(x=>`<span class="${x[0]}">${x[1]}</span>`))}`:"").join(""));
   h += sect("3. Ý nghĩa từng cặp", `<table><tr><th>Cặp</th><th>Sao</th><th>Ý nghĩa</th></tr>${P.map(p=>`<tr><td><b>${esc(p.raw)}</b></td><td>${starTag(p.key)}</td><td>${STARS[p.key].kw}${p.pv0?" (có số 0/5 – tính Phục Vị)":""}${p.bridge?" (số 5 làm cầu nối)":""}</td></tr>`).join("")}</table>`);
   h += sect("4. Cách hóa giải theo sách", advice.length ? ul(advice) : `<p class="ok">Số nhà không có hung tinh, không cần hóa giải.</p>`);
@@ -1860,7 +1870,7 @@ function renderTk(view){
   const K = P.map(p=>p.key);
   const combos = []; for (let i=0;i<P.length-1;i++){ const c=C[K[i]+">"+K[i+1]]; if (c) combos.push({a:P[i],b:P[i+1],txt:c[0],d:c[1]}); }
   const src = combos.filter(c=>c.b.key==="TY"&&c.a.key!=="TY"), spend = combos.filter(c=>c.a.key==="TY"&&c.b.key!=="TY");
-  const lab = label(R.score);
+  const BVt = bookVerdict(P), lab = [BVt.lab[0], BVt.lab[1]==="g"?"ok":BVt.lab[1]==="b"?"warn":""];
   const notes = [];
   if (K.includes("TY")) notes.push(["ok",`Có Thiên Y (${P.filter(p=>p.key==="TY").map(p=>p.raw).join(", ")}): từ trường tài phú, tụ tài.`]);
   else notes.push(["warn","Không có Thiên Y – thiếu từ trường tài phú trực tiếp."]);
@@ -1873,7 +1883,7 @@ function renderTk(view){
   const cc = val("tkCC") ? ccAnalyze(val("tkCC")) : null;
   const title = type==="mk" ? "LUẬN GIẢI MẬT KHẨU" : "LUẬN GIẢI SỐ TÀI KHOẢN";
   let h = head(title, `${type==="mk"?"Mật khẩu: <b>"+"•".repeat(s.length)+"</b>":"Số tài khoản: <b>"+esc(s)+"</b>"} · Ngày lập: ${today()}`);
-  h += sect("1. Kết luận", `<div class="verdict"><div class="score"><b>${R.score}</b><span>/ 100</span></div><div class="vtext"><h3 class="${lab[1]}" style="margin:0;font-size:20px">${lab[0]}</h3><div>Cặp cuối: ${starTag(P[P.length-1].key)} – ${STARS[P[P.length-1].key].kw}.</div></div></div>${type==="mk"?"":chipsOf(P)}`);
+  h += sect("1. Kết luận", `<div class="verdict"><div class="vtext"><h3 class="${lab[1]}" style="margin:0;font-size:20px">${lab[0]}</h3><div>Cặp cuối: ${starTag(P[P.length-1].key)} – ${STARS[P[P.length-1].key].kw}.</div></div></div>${type==="mk"?"":chipsOf(P)}`);
   let tl = "";
   if (src.length) tl += `<p><b>Tiền đến từ:</b> ${src.map(c=>c.txt.split(/[.;]/)[0]+".").join(" ")}</p>`;
   if (spend.length) tl += `<p><b>Tiền đi vào:</b> ${spend.map(c=>c.txt.split(/[.;]/)[0]+".").join(" ")}</p>`;
@@ -2048,8 +2058,7 @@ async function runChon(view){
   h += sect("2. Tiêu chí chọn số", tc);
   const cards = results.map((r,i)=>{
     const P = r.R.pairs, f = r.full, pretty = f.slice(0,4)+" "+f.slice(4,7)+" "+f.slice(7);
-    const fit = Math.max(1, Math.min(5, Math.round((r.sc-40)/14)));
-    return `<div class="pick"><div class="hd" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px"><span class="num">${i+1}. ${pretty}</span><span><span class="tag p">${carrierOf(f)}</span> <span class="tag g">${"★".repeat(fit)}${"☆".repeat(5-fit)}</span> <span class="small">Điểm số: ${r.R.score}/100</span></span></div>
+    return `<div class="pick"><div class="hd" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px"><span class="num">${i+1}. ${pretty}</span><span><span class="tag p">${carrierOf(f)}</span> ${(()=>{ const v=bookVerdict(P).lab; return `<span class="tag ${v[1]}">${v[0].split(" – ")[0]}</span>`; })()}</span></div>
       ${chipsOf(P)}${ul(r.why.slice(0,5),"ok")}
       <div class="acts"><button type="button" class="sec" data-view-num="${f}">Xem báo cáo chi tiết</button><button type="button" class="sec" data-copy-num="${f}">Sao chép số</button></div></div>`;
   }).join("");
@@ -2269,10 +2278,8 @@ function bindDate(id){
 const HT_METHODS = {
   az:{name:"Bảng chữ cái A=1 … Z=26", short:"Chữ cái A–Z", desc:"Mỗi chữ cái lấy số thứ tự trong bảng chữ cái (A=1, B=2 … Z=26, giống bảng sách dùng cho chữ cái trên biển số), cộng lại thành số của chữ đó. Bỏ dấu, Đ tính như D."},
   py:{name:"Pythagoras (chữ cái quy về 1–9)", short:"Pythagoras", desc:"Theo hệ Pythagoras mà sách nhắc tới: A, J, S = 1; B, K, T = 2; C, L, U = 3; D, M, V = 4; E, N, W = 5; F, O, X = 6; G, P, Y = 7; H, Q, Z = 8; I, R = 9. Cộng các chữ cái thành số của chữ đó."},
-  dem:{name:"Đếm số chữ cái mỗi chữ", short:"Số chữ cái", desc:"Lấy số chữ cái (không tính dấu) của mỗi chữ thay cho số nét – cách gần nhất với việc đếm nét khi tên viết bằng chữ Latin."},
   net:{name:"Số nét chữ Hán (nhập tay)", short:"Số nét Hán", desc:"Đúng cách của sách: đếm số nét của từng chữ Hán trong họ tên (ví dụ Vương Phỉ 4 – 14; “Họ Và Tên” 7 – 11 – 3). Cần biết chữ Hán tương ứng của tên."}
 };
-const PY_MEAN = {1:"Độc lập, tiên phong, ý chí mạnh, thích tự làm chủ.",2:"Nhạy cảm, hòa nhã, giỏi hợp tác và làm cầu nối.",3:"Sáng tạo, vui vẻ, giỏi diễn đạt, giao tiếp.",4:"Thực tế, kỷ luật, chăm chỉ, xây nền móng vững.",5:"Thích tự do, thay đổi, linh hoạt, ưa trải nghiệm.",6:"Trách nhiệm, yêu thương, thiên về gia đình và chăm lo người khác.",7:"Trầm tư, thích nghiên cứu, trực giác tốt, sống nội tâm.",8:"Tham vọng, giỏi quản lý tiền bạc và quyền lực.",9:"Nhân ái, bao dung, lý tưởng, hướng tới cộng đồng.",11:"Số bậc thầy: trực giác và cảm hứng mạnh, dễ truyền cảm hứng cho người khác.",22:"Số bậc thầy: biến ý tưởng lớn thành hiện thực, khả năng xây dựng lớn.",33:"Số bậc thầy: tình thương, phụng sự, chữa lành."};
 const htLetters = w => unaccent(w).toUpperCase().replace(/[^A-Z]/g,"");
 const htWords = name => String(name||"").trim().split(/\s+/).filter(w=>htLetters(w).length);
 const pyVal = ch => ((ch.charCodeAt(0)-65)%9)+1;
@@ -2336,7 +2343,6 @@ function htMethodHTML(A, n){
   h += `<table width="100%" style="border-collapse:collapse;width:100%"><tr><th width="22%" style="background:#f6f1e7;font-size:9pt;color:#7a6c5b;border:1px solid #d9cdb8;padding:4pt 6pt;font-family:Arial,sans-serif;width:22%">Chữ</th><th style="background:#f6f1e7;font-size:9pt;color:#7a6c5b;border:1px solid #d9cdb8;padding:4pt 6pt;font-family:Arial,sans-serif">Quy đổi</th><th width="12%" style="background:#f6f1e7;font-size:9pt;color:#7a6c5b;border:1px solid #d9cdb8;padding:4pt 6pt;font-family:Arial,sans-serif;width:12%">Số</th></tr>${A.N.items.map(x=>`<tr><td style="${HTC};width:22%"><b>${esc(x.w)}</b></td><td class="small">${esc(x.calc)}${x.orig!==x.n?` = ${x.orig} → rút gọn ${x.n}`:""}</td><td style="${HTC};width:12%"><b>${x.n}</b></td></tr>`).join("")}</table>`;
   h += `<p>Dãy số danh mệnh: <b class="digits">${esc(A.S)}</b> → các cặp mệnh cách:</p>${chipsOf(A.P)}`;
   h += `<p>Mệnh cách chính: <b>${A.tops.map(starTag).join(" + ")}</b>${A.tops.length>1?" (đa cách – lấy sao xuất hiện trước làm chủ: "+nameOf(A.main)+")":""}. Thống kê: ${Object.keys(A.cnt).map(k=>`${nameOf(k)} ${A.cnt[k]}`).join(", ")}.</p>`;
-  if (A.destiny) h += `<p>Số vận mệnh Pythagoras: tổng ${A.destiny.tot} → <b>${A.destiny.n}</b> – ${PY_MEAN[A.destiny.n]} <span class="small">(ý nghĩa theo thần số học phổ biến; sách chỉ nhắc tên phương pháp, không giải nghĩa)</span></p>`;
   h += `<p><b>Vận trình theo giai đoạn</b> (70 tuổi chia cho ${A.stages.length} chữ):</p>` + htStageTable(A);
   const k = A.main, m = MC[k];
   h += `<div class="detail ${isGood(k)?"good":isBad(k)?"bad":"pv"}"><b>Mệnh cách ${nameOf(k)}</b> <span class="small">– theo ${M.short}</span><dl><dt>Nhân cách</dt><dd>${m.nc}</dd><dt>Sự nghiệp</dt><dd>${m.sn}</dd><dt>Tình cảm, gia đình</dt><dd>${m.tc}</dd><dt>Quan hệ</dt><dd>${m.qh}</dd><dt>Tài vận</dt><dd><b>${TAIVAN[k][0]}</b> – ${TAIVAN[k][1]}</dd></dl></div>`;
@@ -2377,13 +2383,13 @@ function htKH(As, name){
   if (adv.length) h += ul([...new Set(adv)]);
   return h;
 }
-function htMethodsOf(sel){ return sel==="all" ? ["az","py","dem"] : sel ? [sel] : []; }
+function htMethodsOf(sel){ return sel==="all" ? ["az","py"] : sel ? [sel] : []; }
 
 /* ---------- TAB: Họ tên ---------- */
 function renderHt(view){
   const name = val("htName"), method = val("htMethod"), netRaw = val("htNet");
   const bd = parseDate(val("htBirth")), cc = val("htCC") ? ccAnalyze(val("htCC"), bd && bd.y) : null, bda = birthAnalyze(bd);
-  let ms = method==="all" ? ["az","py","dem"] : [method];
+  let ms = method==="all" ? ["az","py"] : [method];
   if (method==="all" && /\d/.test(netRaw)) ms = ["net", ...ms];
   if (method==="net" && !/\d/.test(netRaw)){ showRes("ht", `<p class="warn">Cách số nét chữ Hán: nhập số nét từng chữ, VD "7 11 3".</p>`); return; }
   if (!name && !/\d/.test(netRaw)){ showRes("ht", `<p class="warn">Nhập họ và tên.</p>`); return; }
@@ -2693,8 +2699,8 @@ function khChon(pf, results, fromList){
   const name = val("chName");
   let h = head("ĐỀ XUẤT SỐ ĐIỆN THOẠI PHÙ HỢP", `${name?`Khách hàng: <b>${esc(name)}</b> · `:""}Mục đích: ${pf.purps.map(k=>PURP[k].name).join(", ")} · Ngày lập: ${today()}`);
   if (pf.cc){ const m = MC[pf.cc.main]; h += sect("1. Bản mệnh", `<p>${m.nc}</p>`); }
-  const rows = results.slice(0,10).map((r,i)=>{ const f=r.full, pretty=f.slice(0,4)+" "+f.slice(4,7)+" "+f.slice(7); const fit=Math.max(1,Math.min(5,Math.round((r.sc-40)/14)));
-    const why = uniqArr(r.why.map(kh)).slice(0,3); return `<tr><td style="white-space:nowrap"><b>${i+1}. ${pretty}</b><br><span class="small">${carrierOf(f)}</span></td><td>${"★".repeat(fit)}${"☆".repeat(5-fit)}</td><td>${why.join(" ")||"Năng lượng tổng thể tốt, phù hợp mục đích."}</td></tr>`; }).join("");
+  const rows = results.slice(0,10).map((r,i)=>{ const f=r.full, pretty=f.slice(0,4)+" "+f.slice(4,7)+" "+f.slice(7); const vl=bookVerdict(r.R.pairs).lab;
+    const why = uniqArr(r.why.map(kh)).slice(0,3); return `<tr><td style="white-space:nowrap"><b>${i+1}. ${pretty}</b><br><span class="small">${carrierOf(f)}</span></td><td><span class="tag ${vl[1]}">${vl[0].split(" – ")[0]}</span></td><td>${why.join(" ")||"Năng lượng tổng thể tốt, phù hợp mục đích."}</td></tr>`; }).join("");
   h += sect((pf.cc?"2":"1")+". "+(fromList?"Các số phù hợp nhất trong danh sách":"Các số đề xuất"), `<table><tr><th>Số</th><th>Mức hợp</th><th>Lý do</th></tr>${rows}</table>${fromList?"":`<p class="small">Cần kiểm tra số còn trống tại cửa hàng hoặc ứng dụng của nhà mạng.</p>`}`);
   showRes("chon", h + KH_NOTE);
 }
