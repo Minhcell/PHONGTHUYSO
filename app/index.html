@@ -313,6 +313,7 @@ button.kh{background:#1f6f5c}
     <div style="flex:1 1 150px"><label>Đầu số</label><select id="chPrefix"></select></div>
     <div style="flex:1 1 100%"><label>Danh sách số đang có để chọn (không bắt buộc) – dán từ cửa hàng/ứng dụng nhà mạng, mỗi số một dòng</label>
       <textarea id="chList" placeholder="0981234567&#10;0912 345 678&#10;…"></textarea></div>
+    <div class="f"><label for="chRef">Số đối chiếu (không bắt buộc) – VD số thầy đã chọn hoặc số đang dùng</label><input id="chRef" inputmode="tel" autocomplete="off" placeholder="VD: 0967829131"></div>
     <div class="btns"><button type="submit" data-view="detail">Báo cáo chi tiết</button><button type="submit" data-view="kh" class="kh">Báo cáo khách hàng</button></div>
   </form>
   <div class="hint">Nếu có dán danh sách: app luận từng số theo sách và sắp xếp số đáp ứng nhiều tiêu chí của sách lên trước. Nếu để trống: app tự tạo các tổ hợp số đúng đầu số nhà mạng đã chọn, theo yêu cầu và bản mệnh. Các số tự tạo là tổ hợp lý thuyết, cần kiểm tra số còn trống tại cửa hàng hoặc ứng dụng của nhà mạng.</div>
@@ -1958,6 +1959,7 @@ const PURP = {
   hoc:{name:"Học hành – thi cử", seq:[["SK","DN"],["DN","SK"],["NQ","DN"]], tail:["DN","SK"], avoidKeys:["LS","TM"]},
   sk:{name:"Sức khỏe – bình an", seq:[["DN","DN"],["SK","DN"],["TY","DN"]], tail:["DN"], avoidKeys:["HH","NQ"]},
   dt:{name:"Đầu tư", seq:[["TM","TY"],["TM","DN"]], tail:["TY","DN"]},
+  gt:{name:"Giữ tiền – tích lũy", seq:[["TY","DN"],["TY","PV"]], tail:["DN","TY"], avoidKeys:["TM","LS"]},
   noi:{name:"Ăn nói – bán hàng", seq:[["HH","TY"],["HH","DN"],["HH","SK"]], tail:["TY","DN","SK"]}
 };
 function profileOf(){
@@ -2063,6 +2065,7 @@ async function runChon(view){
       <div class="acts"><button type="button" class="sec" data-view-num="${f}">Xem báo cáo chi tiết</button><button type="button" class="sec" data-copy-num="${f}">Sao chép số</button></div></div>`;
   }).join("");
   h += sect(`3. ${listRaw.trim()?"Xếp hạng các số trong danh sách":"Các số gợi ý"} (${results.length})`, cards + (listRaw.trim()?"":`<p class="small">Đây là các tổ hợp tính theo lý thuyết của sách; cần kiểm tra số còn trống tại cửa hàng hoặc ứng dụng của nhà mạng. Bấm "Tính toán" lần nữa để có bộ số khác. Nếu có danh sách số cụ thể, dán vào ô danh sách để xếp hạng.</p>`));
+  if (val("chRef") && results.length) h += sect("4. Đối chiếu: kết quả chính (số tham khảo) và kết quả phụ (app tối ưu)", refCompareHTML(val("chRef"), results[0].full, pf, false));
   art.innerHTML = h + foot;
   art.querySelectorAll("[data-view-num]").forEach(b=>b.addEventListener("click", ()=>{
     document.getElementById("phone").value = b.dataset.viewNum;
@@ -2520,8 +2523,10 @@ function makeInsert(segs, gaps, pairsFn, goals, pkg, hgFn){
   const baseK = pairsFn(segs.join("")).map(p=>p.key);
   const evalIns = (ins, k) => { const full = build(ins), ev = mcEvalBook(full, pairsFn, goals, pkg, hgFn, baseK); return {...ev, sc: ev.sc - 5*k, ins:{...ins}, k, full}; };
   const base = evalIns({}, 0);
-  const top = [];
-  const consider = r => { if (top.some(x=>x.full===r.full)) return; top.push(r); top.sort((x,y)=>y.sc-x.sc || x.k-y.k); if (top.length>5) top.pop(); };
+  const top = []; let main = null;
+  const kMain = Math.min(3, gaps.length);
+  const considerMain = r => { const ks = Object.keys(r.ins); if (r.k===kMain && ks.length===kMain && ks.includes(String(n)) && !r.extra && !r.unres.length && (!main || r.sc>main.sc)) main = r; };
+  const consider = r => { considerMain(r); if (top.some(x=>x.full===r.full)) return; top.push(r); top.sort((x,y)=>y.sc-x.sc || x.k-y.k); if (top.length>5) top.pop(); };
   const tailOK = r => { let t=r.K.length-1; while (t>0 && r.K[t]==="PV") t--; return pkg.tail.includes(r.K[t]); };
   const clean = r => r && !r.unres.length && !r.extra && tailOK(r) && !r.unsolved.length;
   for (const g of gaps) for (const d of MC_DIG) consider(evalIns({[g]:d}, 1));
@@ -2535,7 +2540,8 @@ function makeInsert(segs, gaps, pairsFn, goals, pkg, hgFn){
       if (!clean(top[0])) for (const d1 of MC_DIG) for (const d2 of MC_DIG) for (const d3 of MC_DIG){ consider(evalIns({[gaps[a]]:d1+d2,[gaps[b]]:d3}, 3)); consider(evalIns({[gaps[a]]:d1,[gaps[b]]:d2+d3}, 3)); }
     }
   }
-  return {base, best: top[0], alts: top.slice(1)};
+  if (kMain<3) for (const r of top) considerMain(r);
+  return {base, best: top[0], alts: top.slice(1), main: main || top[0]};
 }
 const insSpan = d => `<span class="tag g" style="font-size:1.05em;letter-spacing:1px;padding:0 3px">${esc(d)}</span>`;
 const plainIns = d => `[${d}]`;
@@ -2565,9 +2571,9 @@ function xeInsert(pkgKey, goals){
   gaps.push(X.body.length);
   const pkg = MC_PKG[pkgKey];
   if (X.body.length < 2) return null;
-  const {base, best, alts} = makeInsert(X.segs, gaps, x=>analyze(x).pairs, goals, pkg, hoaGiai);
+  const {base, best, alts, main} = makeInsert(X.segs, gaps, x=>analyze(x).pairs, goals, pkg, hoaGiai);
   const show = r => ({res:r, afterHTML: plateWith(X.orig, X.provLen, r.ins, insSpan), afterText: plateWith(X.orig, X.provLen, r.ins, plainIns)});
-  return {pkg, base, res:best, beforeHTML: esc(X.orig), ...show(best), alts: alts.map(show), kind:"xe"};
+  return {pkg, base, res:best, beforeHTML: esc(X.orig), ...show(best), alts: alts.filter(a=>a.full!==main.full).map(show), main: show(main), kind:"xe"};
 }
 const XE_USE = [
   "Theo sách: dán số mật cách (decal) <b>đúng vị trí đã tính – chèn vào giữa các chữ số (và sau chữ số cuối nếu có) của biển gốc</b>, tuyệt đối không dán sai vị trí hay tự đổi thứ tự.",
@@ -2598,9 +2604,9 @@ function nhaInsert(pkgKey, goals){
   if (!N.segs.length) return null;
   gaps.push(N.segs.length);
   const pkg = MC_PKG[pkgKey];
-  const {base, best, alts} = makeInsert(N.segs, gaps, x=>ccPairs(x), goals, pkg, houseHG);
+  const {base, best, alts, main} = makeInsert(N.segs, gaps, x=>ccPairs(x), goals, pkg, houseHG);
   const show = r => ({res:r, afterHTML: nhaWith(N, r.ins, insSpan), afterText: nhaWith(N, r.ins, plainIns)});
-  return {pkg, base, res:best, beforeHTML: nhaWith(N, {}, x=>x), ...show(best), alts: alts.map(show), kind:"nha"};
+  return {pkg, base, res:best, beforeHTML: nhaWith(N, {}, x=>x), ...show(best), alts: alts.filter(a=>a.full!==main.full).map(show), main: show(main), kind:"nha"};
 }
 const NHA_USE = [
   "In hoặc cắt số mật cách, <b>dán bằng keo trong đúng vị trí chèn giữa các chữ số (và sau chữ số cuối nếu có)</b> của biển số nhà gốc (không che, không làm sai số gốc). Tuyệt đối không dán sai vị trí hay đổi thứ tự.",
@@ -2608,13 +2614,26 @@ const NHA_USE = [
   "Theo sách có thể kết hợp các số dễ thay đổi khác (mật khẩu, số điện thoại, biển số xe) để bổ trợ."
 ];
 
+function insChecks(r){
+  const li = [];
+  li.push(r.extra===0 ? `<span class="ok">Không phát sinh hung tinh mới so với số gốc.</span>` : `<span class="warn">Phát sinh ${r.extra} hung tinh mới so với số gốc.</span>`);
+  r.P.forEach((p,i)=>{ if (isBad(p.key)){ const q = hungResolved(r.K,i); li.push(`<span class="${q?"ok":"warn"}">${esc(p.raw)} ${nameOf(p.key)}: ${q===2?"được chế ngự ngay bên cạnh":q===1?"có cát tinh chế ngự trong dãy":"chưa được chế ngự"}.</span>`); } });
+  let t = r.K.length-1; while (t>0 && r.K[t]==="PV") t--;
+  li.push(`Cặp cuối: ${nameOf(r.K[t])} – ${STARS[r.K[t]].kw}.`);
+  return li;
+}
+function insResultBlock(title, X, base){
+  const r = X.res;
+  return `<div class="detail good" style="margin:10px 0"><b>${title}</b><p style="font-size:22px;font-weight:700;letter-spacing:2px;margin:6px 0">${X.afterHTML}</p><p class="small">Chèn ${r.k} chữ số · dãy tính: ${esc(r.full)}</p>${chipsOf(r.P)}${ul(insChecks(r))}</div>`;
+}
 function mcInsertSection(num, pkg, M, basePairs, use){
   if (!M) return sect(`${num}. Mật cách hóa giải – ${pkg.name}`, `<p class="warn">Dãy gốc chỉ có 1 chữ số – không có khoảng giữa để chèn số mật cách.</p>`);
   const r = M.res, li = [];
   let h = `<p><b>${pkg.name}</b> – ${pkg.desc}</p>`;
   h += `<p class="sub">Số gốc</p><p style="font-size:20px;font-weight:700;letter-spacing:2px">${M.beforeHTML}</p>${chipsOf(basePairs)}`;
-  h += `<p class="sub">Sau khi chèn số mật cách (ô xanh là số chèn thêm – ${r.k} chữ số)</p><p style="font-size:22px;font-weight:700;letter-spacing:2px">${M.afterHTML}</p>`;
-  h += `<p class="small">Dãy tính sau khi chèn: ${esc(r.full)}</p>${chipsOf(r.P)}`;
+  if (M.main && M.main.res.full!==r.full) h += insResultBlock("KẾT QUẢ CHÍNH – chèn đủ " + M.main.res.k + " vị trí, có chốt cặp cuối (cách chèn như thầy)", M.main, M.base);
+  h += insResultBlock((M.main && M.main.res.full!==r.full ? "KẾT QUẢ PHỤ – app tối ưu (ít số chèn nhất)" : "KẾT QUẢ – app tối ưu"), M, M.base);
+  h += `<p class="sub">Phân tích chi tiết kết quả phụ (app tối ưu)</p>`;
   const badB = M.base.K.filter(isBad).length, badA = r.K.filter(isBad).length;
   const lvB = M.base.P.filter(p=>isBad(p.key)).map(p=>p.level||"–").join(", "), lvA = r.P.filter(p=>isBad(p.key)).map(p=>p.level||"–").join(", ");
   li.push(`Hung tinh: ${badB} cặp${lvB?" (cấp "+lvB+")":""} → <b>${badA}</b> cặp${lvA?" (cấp "+lvA+")":""} sau khi chèn; cấp càng lớn càng nhẹ, và các hung tinh còn lại đã có cát tinh đi kèm để hóa giải.`);
@@ -2638,7 +2657,7 @@ function mcInsertSection(num, pkg, M, basePairs, use){
 function mcInsertKH(M, use){
   if (!M) return "";
   const r = M.res, badA = r.K.filter(isBad).length, badB = M.base.K.filter(isBad).length;
-  let h = `<p>${M.pkg.desc}</p><p>Số hiện tại:</p><p style="font-size:20px;font-weight:700;letter-spacing:2px">${M.beforeHTML}</p><p>Số sau khi dán thêm (ô xanh là số dán chèn vào):</p><p style="font-size:22px;font-weight:700;letter-spacing:2px">${M.afterHTML}</p>`;
+  let h = `<p>${M.pkg.desc}</p><p>Số hiện tại:</p><p style="font-size:20px;font-weight:700;letter-spacing:2px">${M.beforeHTML}</p>${M.main && M.main.res.full!==r.full ? `<p><b>Kết quả chính</b> (ô xanh là số dán chèn vào):</p><p style="font-size:22px;font-weight:700;letter-spacing:2px">${M.main.afterHTML}</p><p><b>Kết quả phụ</b> – ít số dán hơn:</p>` : `<p>Số sau khi dán thêm (ô xanh là số dán chèn vào):</p>`}<p style="font-size:22px;font-weight:700;letter-spacing:2px">${M.afterHTML}</p>`;
   h += `<p>${badB? (badA? "Sau khi dán, phần lớn năng lượng chưa thuận được hóa giải, năng lượng tổng thể tốt hơn rõ rệt." : "Sau khi dán, các năng lượng chưa thuận được hóa giải.") : "Số hiện tại đã khá tốt; số dán thêm giúp tăng cường may mắn."}</p>`;
   const dates = khaiDungDates(2).map(x=>x.split(" – ")[0]);
   if (dates.length) h += `<p>Ngày nên dán: ${dates.join(" hoặc ")}.</p>`;
@@ -2748,7 +2767,45 @@ function khChon(pf, results, fromList){
   const rows = results.slice(0,10).map((r,i)=>{ const f=r.full, pretty=f.slice(0,4)+" "+f.slice(4,7)+" "+f.slice(7); const vl=bookVerdict(r.R.pairs).lab;
     const why = uniqArr(r.why.map(kh)).slice(0,3); return `<tr><td style="white-space:nowrap"><b>${i+1}. ${pretty}</b><br><span class="small">${carrierOf(f)}</span></td><td><span class="tag ${vl[1]}">${vl[0].split(" – ")[0]}</span></td><td>${why.join(" ")||"Năng lượng tổng thể tốt, phù hợp mục đích."}</td></tr>`; }).join("");
   h += sect((pf.cc?"2":"1")+". "+(fromList?"Các số phù hợp nhất trong danh sách":"Các số đề xuất"), `<table><tr><th>Số</th><th>Mức hợp</th><th>Lý do</th></tr>${rows}</table>${fromList?"":`<p class="small">Cần kiểm tra số còn trống tại cửa hàng hoặc ứng dụng của nhà mạng.</p>`}`);
+  if (val("chRef") && results.length) h += sect((pf.cc?"3":"2")+". So sánh số tham khảo và số app đề xuất", refCompareHTML(val("chRef"), results[0].full, pf, true));
   showRes("chon", h + KH_NOTE);
+}
+
+/* ---------- Đối chiếu số tham khảo với số app chọn – theo tiêu chí sách ---------- */
+function phoneCriteria(full, pf){
+  const s = normalize(full), R = analyze(s), P = R.pairs, K = P.map(p=>p.key);
+  const out = {s, P, K, rows:{}, met:0, total:0};
+  const add = (key, ok, txt) => { out.rows[key] = {ok, txt}; out.total++; if (ok) out.met++; };
+  const BV = bookVerdict(P);
+  add("verdict", BV.lab[1]==="g", BV.lab[0]);
+  let t = K.length-1; while (t>0 && K[t]==="PV") t--;
+  add("tail", isGood(K[t]), `${nameOf(K[t])} – ${STARS[K[t]].kw}`);
+  const hung = P.map((p,i)=>isBad(p.key) ? `${p.raw} ${nameOf(p.key)} (${hungResolved(K,i)?"có chế ngự":"chưa chế ngự"})` : null).filter(Boolean);
+  add("hung", P.every((p,i)=>!isBad(p.key) || hungResolved(K,i)), hung.length ? hung.join("; ") : "Không có hung tinh");
+  out.rows.hung.miss = P.map((p,i)=>isBad(p.key) && !hungResolved(K,i) ? `${p.raw} ${nameOf(p.key)} chưa có cát tinh chế ngự` : null).filter(Boolean).join("; ");
+  pf.needs.forEach(x=>add("need_"+x.key, !!hoaGiai(x.key,K), `${nameOf(x.key)} của bản mệnh – cần ${HG[x.key].txt}`));
+  pf.purps.forEach(pk=>{ const pu = PURP[pk], hits = pu.seq.filter(q=>hasSeq(K,q)), tl = pu.tail.includes(K[t]), av = (pu.avoidKeys||[]).some(k=>K.includes(k));
+    add("p_"+pk, hits.length>0 || (tl && !av), `${pu.name}: ${hits.length ? hits.map(q=>q.map(nameOf).join(" → ")).join(", ") : "không có tổ hợp"}${tl?"; cặp cuối hợp":""}${(pu.avoidKeys||[]).filter(k=>K.includes(k)).length?"; có "+(pu.avoidKeys||[]).filter(k=>K.includes(k)).map(nameOf).join(", ")+" (sách: bất lợi)":""}`); });
+  if (pf.kua){ const ds = s.split("").filter(c=>!/[05]/.test(c)), r = ds.length ? ds.filter(c=>GROUP_DIGITS[pf.kua.nhom].includes(c)).length/ds.length : 0;
+    add("kua", r>=0.6, `${Math.round(r*100)}% chữ số thuộc ${pf.kua.nhom} tứ mệnh (cung ${pf.kua.cung})`); }
+  add("end0", R.lastDigit!=="0", R.lastDigit==="0" ? "Đuôi số 0 – sách: dễ hao hụt" : "Không kết thúc bằng số 0");
+  return out;
+}
+function refCompareHTML(refRaw, bestFull, pf, kh){
+  const A = phoneCriteria(refRaw, pf), B = phoneCriteria(bestFull, pf);
+  const fmt = n => { const f = "0"+n; return f.slice(0,4)+" "+f.slice(4,7)+" "+f.slice(7); };
+  const LBL = {verdict:"Kết luận theo sách", tail:"Cặp cuối (kết quả)", hung:"Hung tinh trong số", kua:"Hợp nhóm tứ mệnh", end0:"Đuôi số"};
+  const label = k => LBL[k] || (k.startsWith("need_") ? "Hóa giải bản mệnh" : "Mục đích: " + PURP[k.slice(2)].name.toLowerCase());
+  const cell = r => r ? `<span class="${r.ok?"ok":"warn"}">${r.ok?"✓":"✗"}</span> ${kh ? (r.ok?"Đạt":"Chưa đạt") : r.txt}` : "–";
+  const keys = [...new Set([...Object.keys(A.rows), ...Object.keys(B.rows)])];
+  let h = `<table><tr><th>Tiêu chí theo sách</th><th>Kết quả chính<br><b>${fmt(A.s)}</b><br><span class="small">số tham khảo</span></th><th>Kết quả phụ<br><b>${fmt(B.s)}</b><br><span class="small">app tối ưu</span></th></tr>`;
+  h += keys.map(k=>`<tr><td>${label(k)}${kh?"":k.startsWith("p_")?"":k.startsWith("need_")?" – "+nameOf(k.slice(5)):""}</td><td>${cell(A.rows[k])}</td><td>${cell(B.rows[k])}</td></tr>`).join("");
+  h += `<tr><td><b>Số tiêu chí đạt</b></td><td><b>${A.met}/${A.total}</b></td><td><b>${B.met}/${B.total}</b></td></tr></table>`;
+  if (!kh) h += `<p class="sub">Các cặp</p><p><b>${fmt(A.s)}</b>: ${chipsOf(A.P)}</p><p><b>${fmt(B.s)}</b>: ${chipsOf(B.P)}</p>`;
+  const miss = Object.keys(A.rows).filter(k=>!A.rows[k].ok).map(k=>kh ? label(k).toLowerCase() : (A.rows[k].miss || A.rows[k].txt));
+  h += `<p>${A.met>=B.met ? "Số tham khảo đạt nhiều tiêu chí của sách bằng hoặc hơn số app đề xuất – có thể dùng số tham khảo." : `Theo tiêu chí của sách, số app đề xuất đạt nhiều hơn (${B.met}/${B.total} so với ${A.met}/${A.total}).`}${miss.length?` Số tham khảo còn thiếu: ${miss.join("; ")}.`:""}</p>`;
+  if (!kh) h += `<p class="small">Sách không công bố công thức chọn số riêng của thầy (có thể còn tính đại vận, niên vận, nhà mạng, số còn trống…). Bảng này chỉ đối chiếu theo các nguyên tắc sách có ghi.</p>`;
+  return h;
 }
 
 /* ---------- Mật khẩu sử dụng ---------- */
