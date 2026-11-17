@@ -1590,7 +1590,7 @@ const TAIVAN = {
 const HG = {
   HH:{txt:"Phục Vị + Sinh Khí + Diên Niên, hoặc Sinh Khí + Sinh Khí, hoặc Sinh Khí + Diên Niên", vd:"114, 1414, 1419"},
   LS:{txt:"Diên Niên hoặc Phục Vị", vd:"19, 87, 34, 26, 11, 33"},
-  TM:{txt:"Thiên Y + Diên Niên", vd:"134, 687, 491, 234"},
+  TM:{txt:"Thiên Y + Diên Niên, hoặc Thiên Y đứng ngay sau Tuyệt Mệnh (“Tuyệt Mệnh Thiên Y biến thành cát”)", vd:"134, 687, 491, 968"},
   NQ:{txt:"Sinh Khí + Thiên Y + Diên Niên, đúng thứ tự", vd:"141319, 14134"},
   PV:{txt:"Sinh Khí + Ngũ Quỷ + Diên Niên (sách lưu ý: không áp dụng cho số điện thoại)", vd:"1426"}
 };
@@ -1600,7 +1600,7 @@ function hoaGiai(key, K){
   const C2 = collapse(K);
   if (key==="HH") return hasSeq(K,["SK","DN"])||hasSeq(K,["SK","SK"])||hasSeq(K,["SK","PV"])||hasSeq(C2,["PV","SK","DN"]);
   if (key==="LS") return K.includes("DN") ? "DN" : (K.includes("PV") ? "PV" : false);
-  if (key==="TM") return hasSeq(K,["TY","DN"]);
+  if (key==="TM") return hasSeq(K,["TY","DN"]) || hasSeq(K,["TM","TY"]);
   if (key==="NQ") return hasSeq(C2,["SK","TY","DN"]);
   if (key==="PV") return hasSeq(C2,["SK","NQ","DN"]);
   return false;
@@ -2478,31 +2478,64 @@ function downloadDoc(node, fname, title){
 /* ================= PHẦN 4: MẬT CÁCH CHÈN GIỮA, BÁO CÁO KHÁCH HÀNG MỌI TAB, MẬT KHẨU SỬ DỤNG ================= */
 
 /* ---------- Mật cách: chèn chữ số vào giữa các số gốc (không thêm ở đuôi) ---------- */
+/* Mật cách chèn số – đánh giá theo nguyên tắc sách (không phải công thức bí truyền):
+   1) Không tạo thêm hung tinh mới so với số gốc.
+   2) Mỗi hung tinh phải được chế ngự: Thiên Y khắc Tuyệt Mệnh ("Tuyệt Mệnh Thiên Y biến thành cát" – TY đứng ngay sau TM);
+      Diên Niên chế ngự Lục Sát; Họa Hại: Sinh Khí + Diên Niên / Sinh Khí + Sinh Khí; Ngũ Quỷ: Sinh Khí + Thiên Y + Diên Niên.
+   3) Cặp cuối là cát tinh của gói (Bình An: Thiên Y / Sinh Khí).
+   4) Cát tinh càng mạnh (cấp 1–2) càng tốt; có số 5 tăng cường cát tinh.
+   5) Chèn càng ít chữ số càng tốt. */
+function hungResolved(K, i){
+  const k = K[i], after = K.slice(i+1), around = K.slice(Math.max(0,i-1));
+  if (k==="TM") return K[i+1]==="TY" ? 2 : (hasSeq(after,["TY","DN"]) ? 1 : 0);
+  if (k==="LS") return (K[i+1]==="DN" || K[i-1]==="DN") ? 2 : (after.includes("DN") || K.slice(0,i).includes("DN") ? 1 : 0);
+  if (k==="HH") return (hasSeq(around,["SK","DN"]) || hasSeq(around,["SK","SK"])) ? 2 : (hasSeq(K,["SK","DN"]) || hasSeq(K,["SK","SK"]) ? 1 : 0);
+  if (k==="NQ") return hasSeq(collapse(around),["SK","TY","DN"]) ? 2 : (hasSeq(collapse(K),["SK","TY","DN"]) ? 1 : 0);
+  return 2;
+}
+function hungCount(K){ const c = {}; K.forEach(k=>{ if (isBad(k)) c[k]=(c[k]||0)+1; }); return c; }
+function mcEvalBook(full, pairsFn, goals, pkg, hgFn, baseK){
+  const P = pairsFn(full); if (!P.length) return {sc:-9999, P, K:[], solved:[], unsolved:[], unres:[], extra:0};
+  const K = P.map(p=>p.key);
+  let sc = 0; const unres = [];
+  K.forEach((k,i)=>{
+    if (isBad(k)){ const r = hungResolved(K,i); if (!r) unres.push(i); sc += r===2 ? 25 : r===1 ? 10 : -100; sc -= [0,16,12,9,6][P[i].level||1]; }
+    else if (isGood(k)) sc += [0,8,6,4,2][P[i].level||4] + (P[i].fives ? 2 : 0);
+  });
+  let extra = 0;
+  if (baseK){ const b = hungCount(baseK), c = hungCount(K); Object.keys(c).forEach(k=>{ extra += Math.max(0, c[k]-(b[k]||0)); }); sc -= 80*extra; }
+  let t = K.length-1; while (t>0 && K[t]==="PV") t--;
+  const last = K[t];
+  sc += pkg.tail.includes(last) ? 40 : isGood(last) ? 20 : isBad(last) ? -60 : 0;
+  let sh = 0; pkg.seq.forEach(q=>{ if (sh<2 && hasSeq(K,q)){ sc += 10; sh++; } });
+  const solved = [], unsolved = [];
+  goals.forEach(g=>{ if ((hgFn||hoaGiai)(g, K)){ sc += 20; solved.push(g); } else unsolved.push(g); });
+  return {sc, P, K, solved, unsolved, unres, extra};
+}
+
 function makeInsert(segs, gaps, pairsFn, goals, pkg, hgFn){
   hgFn = hgFn || hoaGiai;
-  const build = ins => segs.map((sg,j)=>(ins[j]||"")+sg).join("");
-  const evalIns = (ins, k) => { const full = build(ins), ev = mcEval(full, 0, 0, pairsFn, goals, pkg, hgFn); const bad = ev.P.reduce((a,p)=>a+(isBad(p.key)?(p.level?(5-p.level)*8:24):0),0); return {...ev, sc: ev.sc - bad - 3*k, ins:{...ins}, k, full}; };
+  const n = segs.length;
+  const build = ins => segs.map((sg,j)=>(ins[j]||"")+sg).join("") + (ins[n]||"");
+  const baseK = pairsFn(segs.join("")).map(p=>p.key);
+  const evalIns = (ins, k) => { const full = build(ins), ev = mcEvalBook(full, pairsFn, goals, pkg, hgFn, baseK); return {...ev, sc: ev.sc - 5*k, ins:{...ins}, k, full}; };
   const base = evalIns({}, 0);
-  let best = null;
-  const consider = r => { if (!best || r.sc > best.sc) best = r; };
-  const clean = r => r && !r.K.some(isBad) && !r.unsolved.length;
-  // 1 chữ số
+  const top = [];
+  const consider = r => { if (top.some(x=>x.full===r.full)) return; top.push(r); top.sort((x,y)=>y.sc-x.sc || x.k-y.k); if (top.length>5) top.pop(); };
+  const tailOK = r => { let t=r.K.length-1; while (t>0 && r.K[t]==="PV") t--; return pkg.tail.includes(r.K[t]); };
+  const clean = r => r && !r.unres.length && !r.extra && tailOK(r) && !r.unsolved.length;
   for (const g of gaps) for (const d of MC_DIG) consider(evalIns({[g]:d}, 1));
-  // 2 chữ số
-  if (!clean(best)){
-    for (let a=0;a<gaps.length;a++){
-      for (const d1 of MC_DIG) for (const d2 of MC_DIG) consider(evalIns({[gaps[a]]:d1+d2}, 2));
-      for (let b=a+1;b<gaps.length;b++) for (const d1 of MC_DIG) for (const d2 of MC_DIG) consider(evalIns({[gaps[a]]:d1,[gaps[b]]:d2}, 2));
-    }
+  for (let a=0;a<gaps.length;a++){
+    for (const d1 of MC_DIG) for (const d2 of MC_DIG) consider(evalIns({[gaps[a]]:d1+d2}, 2));
+    for (let b=a+1;b<gaps.length;b++) for (const d1 of MC_DIG) for (const d2 of MC_DIG) consider(evalIns({[gaps[a]]:d1,[gaps[b]]:d2}, 2));
   }
-  // 3 chữ số (chỉ khi vẫn còn hung tinh)
-  if (!clean(best) && gaps.length <= 9){
+  if (gaps.length <= 9){
     for (let a=0;a<gaps.length;a++) for (let b=a+1;b<gaps.length;b++){
       for (let c=b+1;c<gaps.length;c++) for (const d1 of MC_DIG) for (const d2 of MC_DIG) for (const d3 of MC_DIG) consider(evalIns({[gaps[a]]:d1,[gaps[b]]:d2,[gaps[c]]:d3}, 3));
-      for (const d1 of MC_DIG) for (const d2 of MC_DIG) for (const d3 of MC_DIG){ consider(evalIns({[gaps[a]]:d1+d2,[gaps[b]]:d3}, 3)); consider(evalIns({[gaps[a]]:d1,[gaps[b]]:d2+d3}, 3)); }
+      if (!clean(top[0])) for (const d1 of MC_DIG) for (const d2 of MC_DIG) for (const d3 of MC_DIG){ consider(evalIns({[gaps[a]]:d1+d2,[gaps[b]]:d3}, 3)); consider(evalIns({[gaps[a]]:d1,[gaps[b]]:d2+d3}, 3)); }
     }
   }
-  return {base, best};
+  return {base, best: top[0], alts: top.slice(1)};
 }
 const insSpan = d => `<span class="tag g" style="font-size:1.05em;letter-spacing:1px;padding:0 3px">${esc(d)}</span>`;
 const plainIns = d => `[${d}]`;
@@ -2522,18 +2555,22 @@ function plateWith(orig, provLen, ins, fmt){
     if (/[0-9A-Z]/.test(ch)){ const bi = c - provLen; if (bi>=1 && ins[bi]) out += fmt(ins[bi]); out += esc(ch); c++; }
     else out += esc(ch);
   }
+  const n = c - provLen; if (ins[n]) out += fmt(ins[n]);
   return out;
 }
 function xeInsert(pkgKey, goals){
   const X = xeSegs();
-  const gaps = []; for (let j=1;j<X.segs.length;j++) gaps.push(j);
+  // chỉ chèn giữa các chữ số của dãy số (không chèn sát chữ cái seri) và được thêm sau cùng
+  const gaps = []; for (let j=1;j<X.body.length;j++) if (/[0-9]/.test(X.body[j]) && /[0-9]/.test(X.body[j-1])) gaps.push(j);
+  gaps.push(X.body.length);
   const pkg = MC_PKG[pkgKey];
-  if (!gaps.length) return null;
-  const {base, best} = makeInsert(X.segs, gaps, x=>analyze(x).pairs, goals, pkg, hoaGiai);
-  return {pkg, base, res:best, beforeHTML: esc(X.orig), afterHTML: plateWith(X.orig, X.provLen, best.ins, insSpan), afterText: plateWith(X.orig, X.provLen, best.ins, plainIns), kind:"xe"};
+  if (X.body.length < 2) return null;
+  const {base, best, alts} = makeInsert(X.segs, gaps, x=>analyze(x).pairs, goals, pkg, hoaGiai);
+  const show = r => ({res:r, afterHTML: plateWith(X.orig, X.provLen, r.ins, insSpan), afterText: plateWith(X.orig, X.provLen, r.ins, plainIns)});
+  return {pkg, base, res:best, beforeHTML: esc(X.orig), ...show(best), alts: alts.map(show), kind:"xe"};
 }
 const XE_USE = [
-  "Theo sách: dán số mật cách (decal) <b>đúng vị trí đã tính – chèn vào giữa các chữ số của biển gốc</b>, tuyệt đối không dán sai vị trí hay tự đổi thứ tự.",
+  "Theo sách: dán số mật cách (decal) <b>đúng vị trí đã tính – chèn vào giữa các chữ số (và sau chữ số cuối nếu có) của biển gốc</b>, tuyệt đối không dán sai vị trí hay tự đổi thứ tự.",
   "Khai dụng đúng ngày; nếu số dán bị rơi hoặc mờ thì chọn lại ngày khai dụng rồi mới dán lại.",
   "<b>Lưu ý pháp luật:</b> biển số xe do cơ quan công an cấp; gắn thêm hoặc che chữ số trên biển số (kể cả bằng keo trong) có thể bị xử phạt. Có thể ghi dãy mật cách lên thẻ Mật Cách đặt trong xe."
 ];
@@ -2551,19 +2588,22 @@ function nhaWith(N, ins, fmt){
   return N.parts.map((pt,pi)=>{
     let out = "";
     for (const ch of pt.v){ if (/[0-9A-Z]/.test(ch)){ if (si>=1 && ins[si] && N.owner[si-1]===pi) out += fmt(ins[si]); out += esc(ch); si++; } else out += esc(ch); }
+    if (pi===N.parts.length-1 && ins[N.segs.length]) out += fmt(ins[N.segs.length]);
     return `${pt.lab} ${out}`;
   }).join(" · ");
 }
 function nhaInsert(pkgKey, goals){
   const N = nhaSegs();
   let gaps = []; for (let j=1;j<N.segs.length;j++) if (N.owner[j]===N.owner[j-1]) gaps.push(j);
-  if (!gaps.length) return null;
+  if (!N.segs.length) return null;
+  gaps.push(N.segs.length);
   const pkg = MC_PKG[pkgKey];
-  const {base, best} = makeInsert(N.segs, gaps, x=>ccPairs(x), goals, pkg, houseHG);
-  return {pkg, base, res:best, beforeHTML: nhaWith(N, {}, x=>x), afterHTML: nhaWith(N, best.ins, insSpan), afterText: nhaWith(N, best.ins, plainIns), kind:"nha"};
+  const {base, best, alts} = makeInsert(N.segs, gaps, x=>ccPairs(x), goals, pkg, houseHG);
+  const show = r => ({res:r, afterHTML: nhaWith(N, r.ins, insSpan), afterText: nhaWith(N, r.ins, plainIns)});
+  return {pkg, base, res:best, beforeHTML: nhaWith(N, {}, x=>x), ...show(best), alts: alts.map(show), kind:"nha"};
 }
 const NHA_USE = [
-  "In hoặc cắt số mật cách, <b>dán bằng keo trong đúng vị trí chèn giữa các chữ số</b> của biển số nhà gốc (không che, không làm sai số gốc). Tuyệt đối không dán sai vị trí hay đổi thứ tự.",
+  "In hoặc cắt số mật cách, <b>dán bằng keo trong đúng vị trí chèn giữa các chữ số (và sau chữ số cuối nếu có)</b> của biển số nhà gốc (không che, không làm sai số gốc). Tuyệt đối không dán sai vị trí hay đổi thứ tự.",
   "Khai dụng đúng ngày; nếu số dán bị rơi mất hoặc mờ thì chọn lại ngày khai dụng rồi mới dán lại.",
   "Theo sách có thể kết hợp các số dễ thay đổi khác (mật khẩu, số điện thoại, biển số xe) để bổ trợ."
 ];
@@ -2578,16 +2618,22 @@ function mcInsertSection(num, pkg, M, basePairs, use){
   const badB = M.base.K.filter(isBad).length, badA = r.K.filter(isBad).length;
   const lvB = M.base.P.filter(p=>isBad(p.key)).map(p=>p.level||"–").join(", "), lvA = r.P.filter(p=>isBad(p.key)).map(p=>p.level||"–").join(", ");
   li.push(`Hung tinh: ${badB} cặp${lvB?" (cấp "+lvB+")":""} → <b>${badA}</b> cặp${lvA?" (cấp "+lvA+")":""} sau khi chèn; cấp càng lớn càng nhẹ, và các hung tinh còn lại đã có cát tinh đi kèm để hóa giải.`);
+  if (r.extra===0) li.push(`<span class="ok">Không phát sinh hung tinh mới so với số gốc.</span>`);
+  r.P.forEach((p,i)=>{ if (isBad(p.key)){ const q = hungResolved(r.K,i); const how = {TM:"Thiên Y đứng ngay sau – sách: “Tuyệt Mệnh Thiên Y biến thành cát”", LS:"Diên Niên chế ngự Lục Sát", HH:"Sinh Khí + Diên Niên / Sinh Khí + Sinh Khí", NQ:"Sinh Khí + Thiên Y + Diên Niên"}[p.key]; li.push(`<span class="${q?"ok":"warn"}">${esc(p.raw)} ${nameOf(p.key)}: ${q===2?"được chế ngự ngay bên cạnh – ":q===1?"có cát tinh chế ngự trong dãy – ":"chưa được chế ngự – "}${how}.</span>`); } });
   li.push(`<span class="small">Theo nguyên lý Đông – Tây tứ mệnh của sách: giữa một chữ số nhóm Đông (1, 3, 4, 9) và một chữ số nhóm Tây (2, 6, 7, 8) luôn phát sinh một cặp hung, nên mật cách không xóa hết hung tinh mà làm chúng yếu đi và dùng tổ hợp cát đi kèm để hóa giải.</span>`);
   r.solved.forEach(g=>li.push(`<span class="ok">Hóa giải ${nameOf(g)}: có tổ hợp phù hợp theo sách.</span>`));
   r.unsolved.forEach(g=>li.push(`<span class="warn">${nameOf(g)}: chưa hóa giải trọn vẹn bằng số chèn – nên bổ trợ bằng số hậu thiên khác (điện thoại, mật khẩu).</span>`));
   const last = r.K[r.K.length-1]; li.push(`Cặp cuối: ${nameOf(last)} – ${STARS[last].kw}.`);
   h += ul(li);
-  const dates = khaiDungDates(3);
+  if (M.alts && M.alts.length){
+    h += `<p class="sub">Phương án khác (xếp theo mức phù hợp nguyên tắc sách)</p><table><tr><th>Phương án</th><th>Số chèn</th><th>Các cặp sau khi chèn</th></tr>${M.alts.slice(0,4).map((a,i)=>`<tr><td style="white-space:nowrap;font-weight:700">${a.afterHTML}</td><td>${a.res.k}</td><td>${a.res.P.map(p=>`${esc(p.raw)} ${starTag(p.key)}`).join(" ")}</td></tr>`).join("")}</table>`;
+  }
+  h += `<p class="small">Nguyên tắc chọn: (1) không phát sinh hung tinh mới; (2) mỗi hung tinh còn lại phải có cát tinh chế ngự theo sách; (3) cặp cuối là cát tinh của ${pkg.name}; (4) ưu tiên cát tinh cấp mạnh; (5) chèn ít chữ số nhất.</p>`;
+    const dates = khaiDungDates(3);
   if (dates.length) h += `<p class="sub">Gợi ý ngày khai dụng</p>${ul(dates)}<p class="small">Chọn ngày mà tháng và ngày tạo cặp cát tinh (theo ví dụ trong sách); giờ khai dụng chính xác sách nói do chuyên gia tính.</p>`;
   h += `<p class="sub">Cách dùng</p>${ul(use)}`;
   h += `<p class="small">Công thức mật cách chính thức sách không công bố ("mật truyền thừa tự"). App chọn vị trí và chữ số chèn để phá các cặp hung, tạo tổ hợp hóa giải và cặp cát theo nguyên tắc công khai trong sách – mang tính tham khảo.</p>`;
-  return sect(`${num}. Mật cách hóa giải – ${pkg.name} (chèn giữa các số)`, h);
+  return sect(`${num}. Mật cách hóa giải – ${pkg.name} (chèn số)`, h);
 }
 function mcInsertKH(M, use){
   if (!M) return "";
