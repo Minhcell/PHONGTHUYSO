@@ -1,0 +1,78 @@
+name: Build EXE + APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows-exe:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Chuẩn bị file app
+        shell: bash
+        run: |
+          mkdir -p electron/app
+          cp app/index.html electron/app/index.html
+          cp electron/build/icon.png electron/app/icon.png
+      - name: Cài và build EXE
+        working-directory: electron
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: |
+          npm install --no-audit --no-fund
+          npm run dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PhongThuySo-Windows
+          path: |
+            electron/dist/PhongThuySo-Portable.exe
+            electron/dist/PhongThuySo-Setup.exe
+
+  android-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+      - name: Đồng bộ index.html vào APK
+        run: cp app/index.html android/app/src/main/assets/index.html
+      - name: Build APK
+        working-directory: android
+        run: gradle assembleRelease --no-daemon
+      - name: Đổi tên APK
+        run: cp android/app/build/outputs/apk/release/app-release.apk PhongThuySo.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PhongThuySo-Android
+          path: PhongThuySo.apk
+
+  release:
+    needs: [ windows-exe, android-apk ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: Phong Thủy Số v1.0.${{ github.run_number }}
+          body: "Bản build tự động: PhongThuySo-Portable.exe (chạy ngay, không cần cài), PhongThuySo-Setup.exe (bộ cài), PhongThuySo.apk (Android)."
+          files: |
+            out/PhongThuySo-Windows/PhongThuySo-Portable.exe
+            out/PhongThuySo-Windows/PhongThuySo-Setup.exe
+            out/PhongThuySo-Android/PhongThuySo.apk
