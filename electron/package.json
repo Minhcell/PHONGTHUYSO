@@ -1,0 +1,20 @@
+{
+  "name": "phong-thuy-so",
+  "productName": "Phong Thuy So",
+  "version": "1.0.0",
+  "description": "Phong Thủy Số – Tra & Luận Số (offline)",
+  "main": "main.js",
+  "author": "Hi",
+  "license": "UNLICENSED",
+  "scripts": { "start": "electron .", "dist": "electron-builder --win portable nsis --x64 --publish never" },
+  "devDependencies": { "electron": "^31.7.7", "electron-builder": "^24.13.3" },
+  "build": {
+    "appId": "vn.phongthuyso.app",
+    "productName": "PhongThuySo",
+    "directories": { "output": "dist", "buildResources": "build" },
+    "files": ["main.js", "app/**/*"],
+    "win": { "icon": "build/icon.ico", "artifactName": "${productName}-${version}-${arch}-${target}.${ext}" },
+    "portable": { "artifactName": "PhongThuySo-Portable.exe" },
+    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true, "artifactName": "PhongThuySo-Setup.exe", "shortcutName": "Phong Thủy Số" }
+  }
+}
