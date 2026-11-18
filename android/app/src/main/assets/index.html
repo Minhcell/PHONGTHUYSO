@@ -141,7 +141,7 @@ button.kh{background:#1f6f5c}
   <form id="frm">
     <div class="f">
       <label for="phone">Số điện thoại</label>
-      <input id="phone" inputmode="tel" autocomplete="off" placeholder="VD: 0967 829 131">
+      <input id="phone" inputmode="tel" autocomplete="off">
     </div>
     <div style="flex:0 1 130px">
       <label for="gender">Giới tính chủ số</label>
@@ -153,15 +153,15 @@ button.kh{background:#1f6f5c}
     </div>
     <div class="f">
       <label for="cccd">Số căn cước (không bắt buộc)</label>
-      <input id="cccd" inputmode="numeric" autocomplete="off" placeholder="12 số, VD: 001088012345">
+      <input id="cccd" inputmode="numeric" autocomplete="off">
     </div>
     <div style="flex:1 1 170px">
       <label for="birth">Ngày sinh (không bắt buộc)</label>
-      <input id="birth" inputmode="numeric" autocomplete="off" placeholder="VD: 27/09/1988">
+      <input id="birth" inputmode="numeric" autocomplete="off">
     </div>
     <div class="f">
       <label for="custName">Họ tên khách hàng (không bắt buộc)</label>
-      <input id="custName" autocomplete="off" placeholder="VD: Nguyễn Văn A">
+      <input id="custName" autocomplete="off">
     </div>
     <div style="flex:1 1 200px">
       <label for="nameMethod">Cách tính họ tên</label>
@@ -169,7 +169,7 @@ button.kh{background:#1f6f5c}
     </div>
     <div class="f">
       <label for="job">Nghề nghiệp</label>
-      <input id="job" autocomplete="off" placeholder="VD: kinh doanh, giáo viên, kế toán, lái xe…">
+      <input id="job" autocomplete="off">
     </div>
     <div class="btns">
       <button type="submit" data-view="detail">Báo cáo chi tiết</button>
@@ -215,8 +215,8 @@ button.kh{background:#1f6f5c}
 <div class="card">
   <h2>Luận họ tên – Tính danh mệnh số</h2>
   <form id="frmHt">
-    <div class="f"><label for="htName">Họ và tên</label><input id="htName" autocomplete="off" placeholder="VD: Nguyễn Văn An"></div>
-    <div style="flex:1 1 170px"><label for="htBirth">Ngày sinh (không bắt buộc)</label><input id="htBirth" inputmode="numeric" autocomplete="off" placeholder="VD: 27/09/1988"></div>
+    <div class="f"><label for="htName">Họ và tên</label><input id="htName" autocomplete="off"></div>
+    <div style="flex:1 1 170px"><label for="htBirth">Ngày sinh (không bắt buộc)</label><input id="htBirth" inputmode="numeric" autocomplete="off"></div>
     <div class="f"><label for="htCC">Số căn cước (không bắt buộc, để đối chiếu)</label><input id="htCC" inputmode="numeric" autocomplete="off"></div>
     <div style="flex:1 1 240px"><label for="htMethod">Cách tính</label><select id="htMethod">
       <option value="all">Tất cả các cách (so sánh)</option>
@@ -224,7 +224,7 @@ button.kh{background:#1f6f5c}
       <option value="py">Pythagoras (chữ cái quy về 1–9)</option>
       
       <option value="net">Số nét chữ Hán (nhập tay)</option></select></div>
-    <div class="f"><label for="htNet">Số nét từng chữ (cho cách chữ Hán)</label><input id="htNet" inputmode="numeric" autocomplete="off" placeholder="VD: 7 11 3"></div>
+    <div class="f"><label for="htNet">Số nét từng chữ (cho cách chữ Hán)</label><input id="htNet" inputmode="numeric" autocomplete="off"></div>
     <div class="btns">
       <button type="submit" data-view="detail">Báo cáo chi tiết</button>
       <button type="submit" data-view="kh" class="kh">Báo cáo khách hàng</button>
@@ -239,7 +239,7 @@ button.kh{background:#1f6f5c}
 <div class="card">
   <h2>Xem biển số xe</h2>
   <form id="frmXe">
-    <div class="f"><label>Biển số xe</label><input id="xePlate" autocomplete="off" placeholder="VD: 30A-123.45 hoặc 59X1-234.56" style="text-transform:uppercase"></div>
+    <div class="f"><label>Biển số xe</label><input id="xePlate" autocomplete="off" style="text-transform:uppercase"></div>
     <div class="f"><label>Căn cước chủ xe (không bắt buộc)</label><input id="xeCC" inputmode="numeric" autocomplete="off"></div>
     <div style="flex:1 1 200px"><label>Mật cách trấn biển số</label><select id="xePkg"><option value="binhan">Gói Bình An – đi lại bình an</option><option value="anphat">Gói An Phát – bình an + tài lộc, nhân mạch</option><option value="">Không tính mật cách</option></select></div>
     <div style="flex:1 1 100%" class="chk"><label><input type="checkbox" id="xeDrop" checked> Bỏ mã tỉnh (2 số đầu) khi tính – theo sách</label></div>
@@ -256,7 +256,7 @@ button.kh{background:#1f6f5c}
   <form id="frmNha">
     <div style="flex:1 1 120px"><label>Ngõ / Hẻm</label><input id="nhaNgo" autocomplete="off"></div>
     <div style="flex:1 1 120px"><label>Ngách / Kiệt</label><input id="nhaNgach" autocomplete="off"></div>
-    <div style="flex:1 1 120px"><label>Số nhà</label><input id="nhaSo" autocomplete="off" placeholder="VD: 424 hoặc 12A"></div>
+    <div style="flex:1 1 120px"><label>Số nhà</label><input id="nhaSo" autocomplete="off"></div>
     <div style="flex:1 1 100px"><label>Tầng</label><input id="nhaTang" inputmode="numeric" autocomplete="off"></div>
     <div style="flex:1 1 100px"><label>Phòng</label><input id="nhaPhong" autocomplete="off"></div>
     <div class="f"><label>Căn cước gia chủ (không bắt buộc)</label><input id="nhaCC" inputmode="numeric" autocomplete="off"></div>
@@ -279,8 +279,8 @@ button.kh{background:#1f6f5c}
     <div style="flex:1 1 200px"><label>Mục tiêu (cho Thúc Vận)</label><select id="tkPurp"></select></div>
     <div class="btns"><button type="submit" data-view="detail">Báo cáo chi tiết</button><button type="submit" data-view="kh" class="kh">Báo cáo khách hàng</button></div>
     <div style="flex:1 1 100%;border-top:1px dashed var(--line,#ddd);margin-top:6px;padding-top:10px"><b>Luận chọn theo bản mệnh</b> – tính mật khẩu ngân hàng, mật khẩu điện thoại và chọn số tài khoản</div>
-    <div class="f"><label for="tkName">Họ và tên</label><input id="tkName" autocomplete="off" placeholder="VD: Nguyễn Văn An"></div>
-    <div style="flex:1 1 170px"><label for="tkBirth">Ngày sinh</label><input id="tkBirth" inputmode="numeric" autocomplete="off" placeholder="VD: 27/09/1988"></div>
+    <div class="f"><label for="tkName">Họ và tên</label><input id="tkName" autocomplete="off"></div>
+    <div style="flex:1 1 170px"><label for="tkBirth">Ngày sinh</label><input id="tkBirth" inputmode="numeric" autocomplete="off"></div>
     <div style="flex:0 1 130px"><label for="tkGender">Giới tính</label><select id="tkGender"><option value="nam">Nam</option><option value="nu">Nữ</option></select></div>
     <div style="flex:1 1 220px"><label for="tkMode">Cần tính</label><select id="tkMode"><option value="all">Tất cả (mật khẩu ngân hàng, mật khẩu điện thoại, số tài khoản)</option><option value="mkbank">Mật khẩu ngân hàng</option><option value="mkphone">Mật khẩu mở điện thoại</option><option value="stk">Số tài khoản ngân hàng</option></select></div>
     <div style="flex:0 1 150px"><label for="tkMkLen">Độ dài mật khẩu</label><select id="tkMkLen"><option value="6">6 số</option><option value="4">4 số</option><option value="8">8 số</option></select></div>
@@ -288,7 +288,7 @@ button.kh{background:#1f6f5c}
     <div style="flex:0 1 150px"><label for="tkLen">Độ dài số tài khoản</label><input id="tkLen" inputmode="numeric" maxlength="2"></div>
     <div style="flex:0 1 170px"><label for="tkPre">Đầu số cố định (nếu có)</label><input id="tkPre" inputmode="numeric" autocomplete="off"></div>
     <div style="flex:1 1 220px"><label for="tkAccPkg">Gói số tài khoản (theo sách)</label><select id="tkAccPkg"><option value="thutai">Gói Thủ Tài – giữ tiền, kiểm soát chi tiêu</option><option value="ankhang">Gói An Khang – giữ tiền + kích phát nguồn tiền</option><option value="cattuong">Gói Cát Tường – giữ tiền, tích lũy tài sản, số dễ nhớ</option><option value="viendung">Gói Viên Dung – đủ các ý trên + quý nhân, số lặp/đối xứng</option></select></div>
-    <div style="flex:1 1 100%"><label for="tkList">Danh sách số tài khoản để chọn (không bắt buộc, mỗi số một dòng) – app luận và chọn ra số hợp nhất</label><textarea id="tkList" placeholder="1903 4567 8901&#10;0123456789&#10;…"></textarea></div>
+    <div style="flex:1 1 100%"><label for="tkList">Danh sách số tài khoản để chọn (không bắt buộc, mỗi số một dòng) – app luận và chọn ra số hợp nhất</label><textarea id="tkList"></textarea></div>
     <div class="btns"><button type="submit" data-view="chon">Luận chọn – báo cáo chi tiết</button><button type="submit" data-view="chonkh" class="kh">Luận chọn – báo cáo khách hàng</button></div>
   </form>
   <div class="hint">Sách xem tài khoản ngân hàng là "kho tiền di động": nhìn tiền đến từ đâu, đi đâu. Mật khẩu dùng thường xuyên cũng tích lũy năng lượng. Mật khẩu chỉ phân tích trên máy này, không gửi đi đâu.</div>
@@ -301,10 +301,10 @@ button.kh{background:#1f6f5c}
   <h2>Xem hôn phối</h2>
   <form id="frmHp">
     <div class="two" style="flex:1 1 100%">
-      <div><label>Người thứ nhất – năm sinh</label><input id="hpY1" inputmode="numeric" maxlength="4" placeholder="VD: 1985">
+      <div><label>Người thứ nhất – năm sinh</label><input id="hpY1" inputmode="numeric" maxlength="4">
         <label style="margin-top:6px">Giới tính</label><select id="hpG1"><option value="nam">Nam</option><option value="nu">Nữ</option></select>
         <div class="chk" style="margin-top:6px"><label><input type="checkbox" id="hpT1"> Sinh trước Tết âm lịch</label></div></div>
-      <div><label>Người thứ hai – năm sinh</label><input id="hpY2" inputmode="numeric" maxlength="4" placeholder="VD: 1990">
+      <div><label>Người thứ hai – năm sinh</label><input id="hpY2" inputmode="numeric" maxlength="4">
         <label style="margin-top:6px">Giới tính</label><select id="hpG2"><option value="nu">Nữ</option><option value="nam">Nam</option></select>
         <div class="chk" style="margin-top:6px"><label><input type="checkbox" id="hpT2"> Sinh trước Tết âm lịch</label></div></div>
     </div>
@@ -320,9 +320,9 @@ button.kh{background:#1f6f5c}
   <h2>Luận chọn số điện thoại</h2>
   <form id="frmChon">
     <div class="f"><label>Họ tên</label><input id="chName" autocomplete="off"></div>
-    <div style="flex:1 1 170px"><label>Ngày sinh</label><input id="chBirth" inputmode="numeric" autocomplete="off" placeholder="VD: 27/09/1988"></div>
+    <div style="flex:1 1 170px"><label>Ngày sinh</label><input id="chBirth" inputmode="numeric" autocomplete="off"></div>
     <div style="flex:0 1 130px"><label>Giới tính</label><select id="chGender"><option value="nam">Nam</option><option value="nu">Nữ</option></select></div>
-    <div class="f"><label>Số căn cước</label><input id="chCC" inputmode="numeric" autocomplete="off" placeholder="12 số"></div>
+    <div class="f"><label>Số căn cước</label><input id="chCC" inputmode="numeric" autocomplete="off"></div>
     <div style="flex:1 1 100%"><label>Muốn số hỗ trợ việc gì (chọn một hoặc nhiều)</label>
       <div class="chk" id="chPurpose"></div></div>
     <div class="subtabs" id="chSub"><button type="button" class="stab on" data-sub="gen">Tạo số theo yêu cầu</button><button type="button" class="stab" data-sub="list">Nhập / thêm file nhiều số</button></div>
@@ -332,7 +332,7 @@ button.kh{background:#1f6f5c}
     </div>
     <div class="subpane off" data-sub="list">
     <div style="flex:1 1 100%"><label>Danh sách số cần phân tích – nhập/dán nhiều số (mỗi số một dòng, hoặc cách nhau bằng dấu phẩy)</label>
-      <textarea id="chList" placeholder="0981234567&#10;0912 345 678&#10;…"></textarea></div>
+      <textarea id="chList"></textarea></div>
     <div style="flex:1 1 100%;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
       <input type="file" id="chFile" accept=".xlsx,.xls,.csv,.txt,.docx,.doc" multiple style="display:none">
       <button type="button" class="sec" id="chFileBtn">Thêm file Excel / Word / CSV / TXT</button>
@@ -340,7 +340,7 @@ button.kh{background:#1f6f5c}
       <span class="small" id="chFileMsg"></span>
     </div>
     </div>
-    <div class="f"><label for="chRef">Số đối chiếu (không bắt buộc) – VD số thầy đã chọn hoặc số đang dùng</label><input id="chRef" inputmode="tel" autocomplete="off" placeholder="VD: 0967829131"></div>
+    <div class="f"><label for="chRef">Số đối chiếu (không bắt buộc) – VD số thầy đã chọn hoặc số đang dùng</label><input id="chRef" inputmode="tel" autocomplete="off"></div>
     <div class="btns"><button type="submit" data-view="detail">Báo cáo chi tiết</button><button type="submit" data-view="kh" class="kh">Báo cáo khách hàng</button></div>
   </form>
   <div class="hint">Tab "Tạo số theo yêu cầu": app tự tạo các tổ hợp số đúng nhà mạng/đầu số đã chọn, hợp bản mệnh và mục đích. Tab "Nhập / thêm file nhiều số": nhập hoặc thêm file Excel (.xlsx, .xls), Word (.docx, .doc), CSV, TXT – app luận từng số theo sách và đưa ra 3 số tốt nhất, hợp nhất với người xem, kèm bảng luận toàn bộ danh sách.</div>
@@ -1417,7 +1417,6 @@ document.getElementById("btnWord").addEventListener("click", async ()=>{
     return `<tr><td>${starTag(k)}</td><td>${S.pairs.map(g=>g.join("/")).join(" · ")}</td><td class="small">${S.kw}</td></tr>`;
   }).join("");
   document.getElementById("refTable").innerHTML = `<tr><th>Sao</th><th>Cặp số (cấp 1 → 4)</th><th>Chủ về</th></tr>`+rows;
-  document.getElementById("startYear").placeholder = String(new Date().getFullYear());
 })();
 
 document.getElementById("frm").addEventListener("submit", e=>{
