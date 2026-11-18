@@ -176,7 +176,7 @@ button.kh{background:#1f6f5c}
       <button type="submit" data-view="kh" class="kh">Báo cáo khách hàng</button>
     </div>
   </form>
-  <div class="hint">Số 0 đầu và mã +84 được bỏ trước khi tách cặp. Ví dụ 0967829131 → 96 · 67 · 78 · 82 · 29 · 91 · 13 · 31. Mỗi cặp ứng với 1 năm kể từ năm bắt đầu dùng số, hết cặp thì quay lại cặp đầu.<br><b>Báo cáo chi tiết</b>: có cặp số, tên sao, điểm – để người xem tra cứu và trao đổi. <b>Báo cáo khách hàng</b>: lời văn dễ hiểu, không có số và thuật ngữ – để gửi khách.<br><b>Nhập ô nào xem ô đó:</b> chỉ số điện thoại → luận số; chỉ căn cước và/hoặc ngày sinh → luận bản mệnh (tiên thiên); nhập đủ số điện thoại + căn cước + ngày sinh (+ họ tên) → luận số điện thoại kết hợp bản mệnh. Ngày sinh gõ liền số, app tự thêm dấu "/"; khi luận sẽ đổi theo sách thành dãy năm–tháng–ngày.</div>
+  <div class="hint">Số 0 đầu và mã +84 được bỏ trước khi tách cặp. Ví dụ 0967829131 → 96 · 67 · 78 · 82 · 29 · 91 · 13 · 31. Mỗi cặp ứng với 1 năm kể từ năm bắt đầu dùng số, hết cặp thì quay lại cặp đầu.<br><b>Báo cáo chi tiết</b>: có cặp số, tên sao, kết luận theo sách – để người xem tra cứu và trao đổi. <b>Báo cáo khách hàng</b>: lời văn dễ hiểu, không có số và thuật ngữ – để gửi khách.<br><b>Nhập ô nào xem ô đó:</b> chỉ số điện thoại → luận số; chỉ căn cước và/hoặc ngày sinh → luận bản mệnh (tiên thiên); nhập đủ số điện thoại + căn cước + ngày sinh (+ họ tên) → luận số điện thoại kết hợp bản mệnh. Ngày sinh gõ liền số, app tự thêm dấu "/"; khi luận sẽ đổi theo sách thành dãy năm–tháng–ngày.</div>
 </div>
 
 <div id="result" class="card">
@@ -3162,6 +3162,76 @@ function appendListTable(pf, kh){
     fi.value = "";
   });
   ta.addEventListener("input", ()=>{ msg.textContent = `Tổng: ${extractPhones(ta.value).length} số`; });
+})();
+</script>
+<script>
+/* ================= PHẦN 7: NÚT "x" XÓA TỪNG Ô, NÚT XÓA TẤT CẢ, NÚT LÊN ĐẦU TRANG ================= */
+(function(){
+  const css = document.createElement("style");
+  css.textContent = `.clrw{position:relative;display:block}
+.clrw>input,.clrw>textarea{padding-right:38px}
+.clrx{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;border:0;padding:0;background:#d9d9d9;color:#444;font-size:18px;line-height:28px;text-align:center;cursor:pointer;display:none;z-index:2}
+.clrw.ta>.clrx{top:8px;transform:none}
+.clrw.has>.clrx{display:block}
+.clrx:hover{background:#c8c8c8;filter:none}
+#toTop{position:fixed;right:14px;bottom:18px;width:44px;height:44px;border-radius:50%;border:0;padding:0;background:var(--accent,#9e1b1b);color:#fff;font-size:22px;line-height:44px;box-shadow:0 4px 14px rgba(0,0,0,.25);display:none;z-index:8000;cursor:pointer}
+#toTop.on{display:block}`;
+  document.head.appendChild(css);
+
+  // 1) Nút "x" ở cuối mỗi ô nhập
+  const SKIP = new Set(["checkbox","radio","file","password","hidden","button","submit","range","color"]);
+  const fields = [...document.querySelectorAll("form input, form textarea")].filter(el=>!SKIP.has((el.type||"").toLowerCase()) && !el.closest(".mdl"));
+  fields.forEach(el=>{
+    const w = document.createElement("span");
+    w.className = "clrw" + (el.tagName==="TEXTAREA" ? " ta" : "");
+    el.parentNode.insertBefore(w, el); w.appendChild(el);
+    const x = document.createElement("button");
+    x.type = "button"; x.className = "clrx"; x.textContent = "×"; x.tabIndex = -1; x.setAttribute("aria-label", "Xóa ô này");
+    w.appendChild(x);
+    const sync = () => w.classList.toggle("has", !!el.value);
+    el.addEventListener("input", sync); el.addEventListener("change", sync); el.addEventListener("focus", sync); el.addEventListener("blur", sync);
+    x.addEventListener("mousedown", e=>e.preventDefault());
+    x.addEventListener("click", ()=>{ el.value = ""; el.dispatchEvent(new Event("input",{bubbles:true})); el.dispatchEvent(new Event("change",{bubbles:true})); sync(); el.focus(); });
+    sync();
+  });
+  // giá trị có thể được app điền tự động (VD từ tab chọn số) → cập nhật nút x định kỳ
+  setInterval(()=>fields.forEach(el=>{ const w = el.parentNode; if (w && w.classList) w.classList.toggle("has", !!el.value); }), 600);
+
+  // 2) Nút "Xóa tất cả" cho mỗi form
+  document.querySelectorAll("form").forEach(f=>{
+    if (f.closest(".mdl")) return;
+    const box = f.querySelector(".btns"); if (!box) return;
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "sec"; b.textContent = "Xóa tất cả ô nhập";
+    box.appendChild(b);
+    b.addEventListener("click", ()=>{
+      f.querySelectorAll("input, textarea").forEach(el=>{
+        const t = (el.type||"").toLowerCase();
+        if (t==="checkbox" || t==="radio") el.checked = el.defaultChecked;
+        else if (t==="file") el.value = "";
+        else if (!SKIP.has(t)) el.value = "";
+        el.dispatchEvent(new Event("input",{bubbles:true}));
+      });
+      f.querySelectorAll("select").forEach(s=>{ const d = [...s.options].findIndex(o=>o.defaultSelected); s.selectedIndex = d>=0 ? d : 0; s.dispatchEvent(new Event("change",{bubbles:true})); });
+      const pane = f.closest(".pane");
+      if (pane){
+        pane.querySelectorAll(".res").forEach(r=>{ r.style.display = "none"; const a = r.querySelector('[id^="art-"]'); if (a) a.innerHTML = ""; const m = r.querySelector(".msg"); if (m) m.textContent = ""; });
+        if (pane.id==="tab-sdt"){ const r = document.getElementById("result"); if (r) r.style.display = "none"; }
+        pane.querySelectorAll("#chFileMsg").forEach(m=>m.textContent = "");
+      }
+      const first = f.querySelector("input:not([type=checkbox]):not([type=radio]):not([type=file]), textarea");
+      try{ window.scrollTo({top:0, behavior:"smooth"}); }catch(e){ window.scrollTo(0,0); }
+      if (first) setTimeout(()=>first.focus({preventScroll:true}), 300);
+    });
+  });
+
+  // 3) Nút mũi tên lên đầu trang
+  const up = document.createElement("button");
+  up.type = "button"; up.id = "toTop"; up.textContent = "↑"; up.setAttribute("aria-label", "Lên đầu trang");
+  document.body.appendChild(up);
+  const onScroll = () => up.classList.toggle("on", (window.scrollY || document.documentElement.scrollTop) > 300);
+  window.addEventListener("scroll", onScroll, {passive:true}); onScroll();
+  up.addEventListener("click", ()=>{ try{ window.scrollTo({top:0, behavior:"smooth"}); }catch(e){ window.scrollTo(0,0); } });
 })();
 </script>
 </body>
