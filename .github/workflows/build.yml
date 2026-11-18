@@ -1,4 +1,4 @@
-name: Build EXE + APK
+name: Build EXE + APK + iOS + Web
 
 on:
   push:
@@ -69,8 +69,64 @@ jobs:
           name: PhongThuySo-Android
           path: PhongThuySo.apk
 
+  web-pwa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tạo bản web offline (PWA)
+        run: python3 tools/make_web.py "${{ github.run_number }}-${GITHUB_SHA::7}"
+      - name: Nén thư mục web
+        run: cd dist-web && zip -qr ../PhongThuySo-Web.zip .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PhongThuySo-Web
+          path: PhongThuySo-Web.zip
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist-web
+
+  pages:
+    needs: web-pwa
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4
+
+  ios-ipa:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cài XcodeGen
+        run: brew install xcodegen
+      - name: Đồng bộ index.html vào app iOS
+        run: cp app/index.html ios/Resources/www/index.html
+      - name: Tạo project Xcode
+        working-directory: ios
+        run: xcodegen generate
+      - name: Build (không ký)
+        working-directory: ios
+        run: |
+          xcodebuild -project PhongThuySo.xcodeproj -target PhongThuySo -sdk iphoneos -configuration Release \
+            SYMROOT="$PWD/build" CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build
+      - name: Đóng gói IPA
+        working-directory: ios
+        run: |
+          mkdir -p Payload
+          cp -R build/Release-iphoneos/PhongThuySo.app Payload/
+          zip -qry ../PhongThuySo-iOS.ipa Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PhongThuySo-iOS
+          path: PhongThuySo-iOS.ipa
+
   release:
-    needs: [ windows-exe, android-apk ]
+    needs: [ windows-exe, android-apk, ios-ipa, web-pwa ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -80,8 +136,10 @@ jobs:
         with:
           tag_name: v1.0.${{ github.run_number }}
           name: Phong Thủy Số v1.0.${{ github.run_number }}
-          body: "Bản build tự động: PhongThuySo-Portable.exe (chạy ngay, không cần cài), PhongThuySo-Setup.exe (bộ cài), PhongThuySo.apk (Android)."
+          body: "Bản build tự động: PhongThuySo-Portable.exe (PC, chạy ngay), PhongThuySo-Setup.exe (PC, bộ cài), PhongThuySo.apk (Android), PhongThuySo-iOS.ipa (iPhone/iPad – chưa ký, cài qua Sideloadly/AltStore), PhongThuySo-Web.zip (bản web offline – kéo thả lên Netlify, mở bằng Safari rồi Thêm vào MH chính)."
           files: |
             out/PhongThuySo-Windows/PhongThuySo-Portable.exe
             out/PhongThuySo-Windows/PhongThuySo-Setup.exe
             out/PhongThuySo-Android/PhongThuySo.apk
+            out/PhongThuySo-iOS/PhongThuySo-iOS.ipa
+            out/PhongThuySo-Web/PhongThuySo-Web.zip
