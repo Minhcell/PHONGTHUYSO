@@ -102,6 +102,10 @@ button.kh{background:#1f6f5c}
 .tabs{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-right:4px}
 .tabs .tab{background:transparent;color:var(--mute);border-radius:0;padding:8px 14px;font-size:14px}
 .tabs .tab.on{background:var(--accent);color:#fff}
+.subtabs{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;flex:1 1 100%}
+.subtabs .stab{flex:1;background:transparent;color:var(--mute);border-radius:0;padding:9px 10px;font-size:14px}
+.subtabs .stab.on{background:var(--accent);color:#fff}
+.subpane{display:contents}.subpane.off{display:none}
 #articleKH h1{font-size:22px;margin:10px 0 4px;color:#1f6f5c;text-align:center}
 #articleKH .meta{text-align:center;color:var(--mute);font-size:13px}
 #articleKH h2{color:#1f6f5c}
@@ -321,14 +325,25 @@ button.kh{background:#1f6f5c}
     <div class="f"><label>Số căn cước</label><input id="chCC" inputmode="numeric" autocomplete="off" placeholder="12 số"></div>
     <div style="flex:1 1 100%"><label>Muốn số hỗ trợ việc gì (chọn một hoặc nhiều)</label>
       <div class="chk" id="chPurpose"></div></div>
+    <div class="subtabs" id="chSub"><button type="button" class="stab on" data-sub="gen">Tạo số theo yêu cầu</button><button type="button" class="stab" data-sub="list">Nhập / thêm file nhiều số</button></div>
+    <div class="subpane" data-sub="gen">
     <div style="flex:1 1 170px"><label>Nhà mạng</label><select id="chCarrier"></select></div>
     <div style="flex:1 1 150px"><label>Đầu số</label><select id="chPrefix"></select></div>
-    <div style="flex:1 1 100%"><label>Danh sách số đang có để chọn (không bắt buộc) – dán từ cửa hàng/ứng dụng nhà mạng, mỗi số một dòng</label>
+    </div>
+    <div class="subpane off" data-sub="list">
+    <div style="flex:1 1 100%"><label>Danh sách số cần phân tích – nhập/dán nhiều số (mỗi số một dòng, hoặc cách nhau bằng dấu phẩy)</label>
       <textarea id="chList" placeholder="0981234567&#10;0912 345 678&#10;…"></textarea></div>
+    <div style="flex:1 1 100%;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <input type="file" id="chFile" accept=".xlsx,.xls,.csv,.txt,.docx,.doc" multiple style="display:none">
+      <button type="button" class="sec" id="chFileBtn">Thêm file Excel / Word / CSV / TXT</button>
+      <button type="button" class="sec" id="chClear">Xóa danh sách</button>
+      <span class="small" id="chFileMsg"></span>
+    </div>
+    </div>
     <div class="f"><label for="chRef">Số đối chiếu (không bắt buộc) – VD số thầy đã chọn hoặc số đang dùng</label><input id="chRef" inputmode="tel" autocomplete="off" placeholder="VD: 0967829131"></div>
     <div class="btns"><button type="submit" data-view="detail">Báo cáo chi tiết</button><button type="submit" data-view="kh" class="kh">Báo cáo khách hàng</button></div>
   </form>
-  <div class="hint">Nếu có dán danh sách: app luận từng số theo sách và sắp xếp số đáp ứng nhiều tiêu chí của sách lên trước. Nếu để trống: app tự tạo các tổ hợp số đúng đầu số nhà mạng đã chọn, theo yêu cầu và bản mệnh. Các số tự tạo là tổ hợp lý thuyết, cần kiểm tra số còn trống tại cửa hàng hoặc ứng dụng của nhà mạng.</div>
+  <div class="hint">Tab "Tạo số theo yêu cầu": app tự tạo các tổ hợp số đúng nhà mạng/đầu số đã chọn, hợp bản mệnh và mục đích. Tab "Nhập / thêm file nhiều số": nhập hoặc thêm file Excel (.xlsx, .xls), Word (.docx, .doc), CSV, TXT – app luận từng số theo sách và đưa ra 3 số tốt nhất, hợp nhất với người xem, kèm bảng luận toàn bộ danh sách.</div>
 </div>
 <div class="card res" id="res-chon"><div class="toolbar"><button type="button" class="cpy" data-for="art-chon">Sao chép sang Word</button><span class="small msg"></span></div>
   <div class="prog" id="chProg" style="display:none"><div></div></div><div id="art-chon"></div></div>
@@ -2018,15 +2033,17 @@ async function runChon(view){
   const art = document.getElementById("art-chon");
   document.getElementById("res-chon").style.display = "block";
   if (!pf.purps.length){ art.innerHTML = `<p class="warn">Chọn ít nhất một mục đích.</p>`; return; }
-  const listRaw = val("chList");
+  const listMode = (document.querySelector("#chSub .stab.on")||{}).dataset?.sub === "list";
+  const listRaw = listMode ? val("chList") : "";
+  if (listMode && !extractPhones(listRaw).length){ art.innerHTML = `<p class="warn">Chưa có số điện thoại nào trong danh sách. Nhập số hoặc thêm file Excel/Word.</p>`; return; }
   const prefs = prefixesChosen();
   let results = [];
   const prog = document.getElementById("chProg"), bar = prog.firstElementChild;
   if (listRaw.trim()){
-    const nums = [...new Set((listRaw.match(/(\+?84|0)[\d .\-]{8,13}/g)||[]).map(x=>{ let d=x.replace(/\D/g,""); if (d.startsWith("84")) d="0"+d.slice(2); return d; }).filter(d=>d.length===10))];
-    const filt = val("chCarrier")==="all" && !val("chPrefix") ? nums : nums.filter(d=>prefs.includes(d.slice(0,3)));
-    results = filt.map(full=>({full, ...scoreNum(full, pf)})).sort((a,b)=>b.sc-a.sc).slice(0,30);
-    if (!results.length){ art.innerHTML = `<p class="warn">Không tìm thấy số 10 chữ số${nums.length?" thuộc nhà mạng/đầu số đã chọn":""} trong danh sách.</p>`; return; }
+    const nums = extractPhones(listRaw);
+    window.__chAll = nums.map(full=>({full, ...scoreNum(full, pf)})).sort((a,b)=>b.sc-a.sc);
+    results = window.__chAll.slice(0,3);
+    if (!results.length){ art.innerHTML = `<p class="warn">Không tìm thấy số điện thoại 10 chữ số trong danh sách.</p>`; return; }
   } else {
     prog.style.display = "block"; art.innerHTML = `<p>Đang tính toán…</p>`;
     const pool = new Map();
@@ -2059,7 +2076,7 @@ async function runChon(view){
     results = picked.map(full=>({full, ...scoreNum(full, pf)}));
     prog.style.display = "none";
   }
-  if (view==="kh" && typeof khChon==="function"){ khChon(pf, results, !!listRaw.trim()); return; }
+  if (view==="kh" && typeof khChon==="function"){ khChon(pf, results, !!listRaw.trim()); if (listRaw.trim()) appendListTable(pf, true); return; }
   // báo cáo
   const name = val("chName");
   let h = head("LUẬN CHỌN SỐ ĐIỆN THOẠI", `${name?`Khách hàng: <b>${esc(name)}</b> · `:""}${val("chBirth")?`Ngày sinh: ${esc(val("chBirth"))} · `:""}Nhà mạng: ${val("chCarrier")==="all"?"Tất cả":CARRIERS[val("chCarrier")].name}${val("chPrefix")?" ("+val("chPrefix")+")":""} · Ngày lập: ${today()}`);
@@ -2077,8 +2094,9 @@ async function runChon(view){
       ${chipsOf(P)}${ul(r.why.slice(0,5),"ok")}
       <div class="acts"><button type="button" class="sec" data-view-num="${f}">Xem báo cáo chi tiết</button><button type="button" class="sec" data-copy-num="${f}">Sao chép số</button></div></div>`;
   }).join("");
-  h += sect(`3. ${listRaw.trim()?"Xếp hạng các số trong danh sách":"Các số gợi ý"} (${results.length})`, cards + (listRaw.trim()?"":`<p class="small">Đây là các tổ hợp tính theo lý thuyết của sách; cần kiểm tra số còn trống tại cửa hàng hoặc ứng dụng của nhà mạng. Bấm "Tính toán" lần nữa để có bộ số khác. Nếu có danh sách số cụ thể, dán vào ô danh sách để xếp hạng.</p>`));
-  if (val("chRef") && results.length) h += sect("4. Đối chiếu: kết quả chính (số tham khảo) và kết quả phụ (app tối ưu)", refCompareHTML(val("chRef"), results[0].full, pf, false));
+  h += sect(`3. ${listRaw.trim()?`3 số tốt nhất, hợp nhất với người xem (trong ${window.__chAll.length} số đã nhập)`:"Các số gợi ý"}${listRaw.trim()?"":` (${results.length})`}`, cards + (listRaw.trim()?"":`<p class="small">Đây là các tổ hợp tính theo lý thuyết của sách; cần kiểm tra số còn trống tại cửa hàng hoặc ứng dụng của nhà mạng. Bấm "Tính toán" lần nữa để có bộ số khác. Nếu có danh sách số cụ thể, dán vào ô danh sách để xếp hạng.</p>`));
+  if (listRaw.trim()) h += sect("4. Bảng luận toàn bộ số đã nhập", listTableHTML(pf, false));
+  if (val("chRef") && results.length) h += sect((listRaw.trim()?"5":"4")+". Đối chiếu: kết quả chính (số tham khảo) và kết quả phụ (app tối ưu)", refCompareHTML(val("chRef"), results[0].full, pf, false));
   art.innerHTML = h + foot;
   art.querySelectorAll("[data-view-num]").forEach(b=>b.addEventListener("click", ()=>{
     document.getElementById("phone").value = b.dataset.viewNum;
@@ -2779,7 +2797,7 @@ function khChon(pf, results, fromList){
   if (pf.cc){ const m = MC[pf.cc.main]; h += sect("1. Bản mệnh", `<p>${m.nc}</p>`); }
   const rows = results.slice(0,10).map((r,i)=>{ const f=r.full, pretty=f.slice(0,4)+" "+f.slice(4,7)+" "+f.slice(7); const vl=bookVerdict(r.R.pairs).lab;
     const why = uniqArr(r.why.map(kh)).slice(0,3); return `<tr><td style="white-space:nowrap"><b>${i+1}. ${pretty}</b><br><span class="small">${carrierOf(f)}</span></td><td><span class="tag ${vl[1]}">${vl[0].split(" – ")[0]}</span></td><td>${why.join(" ")||"Năng lượng tổng thể tốt, phù hợp mục đích."}</td></tr>`; }).join("");
-  h += sect((pf.cc?"2":"1")+". "+(fromList?"Các số phù hợp nhất trong danh sách":"Các số đề xuất"), `<table><tr><th>Số</th><th>Mức hợp</th><th>Lý do</th></tr>${rows}</table>${fromList?"":`<p class="small">Cần kiểm tra số còn trống tại cửa hàng hoặc ứng dụng của nhà mạng.</p>`}`);
+  h += sect((pf.cc?"2":"1")+". "+(fromList?"3 số tốt nhất trong danh sách":"Các số đề xuất"), `<table><tr><th>Số</th><th>Mức hợp</th><th>Lý do</th></tr>${rows}</table>${fromList?"":`<p class="small">Cần kiểm tra số còn trống tại cửa hàng hoặc ứng dụng của nhà mạng.</p>`}`);
   if (val("chRef") && results.length) h += sect((pf.cc?"3":"2")+". So sánh số tham khảo và số app đề xuất", refCompareHTML(val("chRef"), results[0].full, pf, true));
   showRes("chon", h + KH_NOTE);
 }
@@ -3034,6 +3052,116 @@ function tkChon(view){
   const setLen = () => { const b = BANKS.find(x=>x[0]===sel.value); document.getElementById("tkLen").value = b[2]; };
   sel.addEventListener("change", setLen); setLen();
   bindName("tkName"); bindDate("tkBirth");
+})();
+</script>
+<script>
+/* ================= PHẦN 6: CHỌN SỐ TỪ DANH SÁCH / FILE EXCEL, WORD ================= */
+function extractPhones(text){
+  const out = new Set();
+  const runs = String(text||"").match(/\+?\d[\d .\-()]{7,16}\d/g) || [];
+  runs.forEach(r=>{
+    let d = r.replace(/\D/g,"");
+    if (d.startsWith("84") && d.length===11) d = "0"+d.slice(2);
+    if (d.length===9 && /^[35789]/.test(d)) d = "0"+d;           // Excel làm mất số 0 đầu
+    if (d.length===10 && /^0[35789]/.test(d)) out.add(d);
+  });
+  return [...out];
+}
+async function unzipEntries(buf, want){
+  const u8 = new Uint8Array(buf), dv = new DataView(buf), res = {};
+  let eocd = -1; for (let i=u8.length-22; i>=Math.max(0,u8.length-65557); i--) if (dv.getUint32(i,true)===0x06054b50){ eocd = i; break; }
+  if (eocd<0) throw new Error("File không đúng định dạng nén Office");
+  let off = dv.getUint32(eocd+16,true); const n = dv.getUint16(eocd+10,true);
+  const dec = new TextDecoder("utf-8");
+  for (let k=0; k<n; k++){
+    if (dv.getUint32(off,true)!==0x02014b50) break;
+    const method = dv.getUint16(off+10,true), csize = dv.getUint32(off+20,true), nl = dv.getUint16(off+28,true), el = dv.getUint16(off+30,true), cl = dv.getUint16(off+32,true), lho = dv.getUint32(off+42,true);
+    const name = dec.decode(u8.subarray(off+46, off+46+nl));
+    off += 46+nl+el+cl;
+    if (!want(name)) continue;
+    const ln = dv.getUint16(lho+26,true), le = dv.getUint16(lho+28,true), start = lho+30+ln+le;
+    const data = u8.subarray(start, start+csize);
+    let raw;
+    if (method===0) raw = data;
+    else if (method===8){
+      if (typeof DecompressionStream === "undefined") throw new Error("Thiết bị chưa hỗ trợ giải nén file Office – hãy lưu thành .csv hoặc dán số");
+      raw = new Uint8Array(await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).arrayBuffer());
+    } else continue;
+    res[name] = dec.decode(raw);
+  }
+  return res;
+}
+const xmlText = x => x.replace(/<\/(w:p|row|si|c|w:tc)>/g,"\n").replace(/<[^>]+>/g," ").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">");
+async function readPhoneFile(file){
+  const ext = (file.name.split(".").pop()||"").toLowerCase();
+  const buf = await file.arrayBuffer();
+  if (ext==="xlsx" || ext==="docx"){
+    const ent = await unzipEntries(buf, n => ext==="xlsx" ? /^xl\/(sharedStrings\.xml|worksheets\/[^/]+\.xml)$/.test(n) : /^word\/(document|header\d*|footer\d*)\.xml$/.test(n));
+    return Object.values(ent).map(xmlText).join("\n");
+  }
+  const u8 = new Uint8Array(buf);
+  if (ext==="xls" || ext==="doc"){
+    // bản Office cũ: đọc chữ số lưu dạng văn bản (1 byte và UTF-16); số lưu dạng số trong .xls có thể bị sót
+    let a = "", b = "";
+    for (let i=0;i<u8.length;i++) a += (u8[i]>=48&&u8[i]<=57) || u8[i]===43 ? String.fromCharCode(u8[i]) : (u8[i]===32||u8[i]===46||u8[i]===45 ? String.fromCharCode(u8[i]) : "\n");
+    for (let i=0;i+1<u8.length;i+=2){ const c = u8[i] | (u8[i+1]<<8); b += (c>=48&&c<=57)||c===43||c===32||c===46||c===45 ? String.fromCharCode(c) : "\n"; }
+    return a + "\n" + b + "\n" + xlsNumbers(buf);
+  }
+  let t = new TextDecoder("utf-8").decode(u8);
+  if (/\u0000/.test(t)) t = new TextDecoder("utf-16le").decode(u8);
+  return t;
+}
+function xlsNumbers(buf){
+  // đọc các ô số trong file .xls (bản ghi NUMBER 0x0203 và RK 0x027E) để lấy số điện thoại bị mất số 0 đầu
+  const dv = new DataView(buf), out = [];
+  for (let i=0;i+14<buf.byteLength;i++){
+    const t = dv.getUint16(i,true), len = dv.getUint16(i+2,true);
+    if (t===0x0203 && len===14){ const v = dv.getFloat64(i+10,true); if (Number.isInteger(v) && v>3e8 && v<1e11) out.push(String(v)); }
+    else if (t===0x027E && len===10){ const rk = dv.getUint32(i+10,true); if (rk & 2){ let v = rk>>2; if (rk & 1) v = v/100; if (Number.isInteger(v) && v>3e8) out.push(String(v)); } }
+  }
+  return out.join("\n");
+}
+function listTableHTML(pf, kh){
+  const all = window.__chAll || [];
+  const rows = all.map((r,i)=>{
+    const f = r.full, pretty = f.slice(0,4)+" "+f.slice(4,7)+" "+f.slice(7), P = r.R.pairs, K = P.map(p=>p.key), v = bookVerdict(P).lab;
+    const solved = pf.needs.filter(x=>hoaGiai(x.key,K)).length;
+    const purp = pf.purps.filter(pk=>PURP[pk].seq.some(q=>hasSeq(K,q))).map(pk=>PURP[pk].name.split(" – ")[0]);
+    const unres = P.filter((p,j)=>isBad(p.key) && !hungResolved(K,j)).map(p=>nameOf(p.key));
+    return kh ? `<tr class="${i<3?"now":""}"><td>${i+1}</td><td style="white-space:nowrap"><b>${pretty}</b></td><td><span class="tag ${v[1]}">${v[0].split(" – ")[0]}</span></td><td>${purp.join(", ")||"–"}</td></tr>`
+              : `<tr class="${i<3?"now":""}"><td>${i+1}</td><td style="white-space:nowrap"><b>${pretty}</b><br><span class="small">${carrierOf(f)}</span></td><td><span class="tag ${v[1]}">${v[0].split(" – ")[0]}</span></td><td>${pf.needs.length?`${solved}/${pf.needs.length}`:"–"}</td><td>${purp.join(", ")||"–"}</td><td>${unres.join(", ")||"không"}</td></tr>`;
+  }).join("");
+  return kh ? `<table><tr><th>#</th><th>Số</th><th>Đánh giá</th><th>Hỗ trợ</th></tr>${rows}</table>`
+            : `<table><tr><th>#</th><th>Số</th><th>Kết luận</th><th>Hóa giải bản mệnh</th><th>Mục đích đạt</th><th>Hung chưa chế ngự</th></tr>${rows}</table><p class="small">Xếp theo mức đáp ứng các tiêu chí của sách: hóa giải hung tinh bản mệnh, tổ hợp theo mục đích, cặp cuối, chữ số hợp cung mệnh, tránh tổ hợp xấu. 3 dòng tô màu là 3 số tốt nhất.</p>`;
+}
+function appendListTable(pf, kh){
+  const art = document.getElementById("art-chon"); if (!art) return;
+  const smalls = art.querySelectorAll(":scope > p.small"), last = smalls[smalls.length-1];
+  const html = sect(`Danh sách đã xem (${(window.__chAll||[]).length} số)`, listTableHTML(pf, kh));
+  if (last) last.insertAdjacentHTML("beforebegin", html); else art.insertAdjacentHTML("beforeend", html);
+}
+(function(){
+  document.querySelectorAll("#chSub .stab").forEach(b=>b.addEventListener("click", ()=>{
+    document.querySelectorAll("#chSub .stab").forEach(x=>x.classList.toggle("on", x===b));
+    document.querySelectorAll("#frmChon .subpane").forEach(p=>p.classList.toggle("off", p.dataset.sub!==b.dataset.sub));
+  }));
+  const fi = document.getElementById("chFile"), msg = document.getElementById("chFileMsg"), ta = document.getElementById("chList");
+  document.getElementById("chFileBtn").addEventListener("click", ()=>fi.click());
+  document.getElementById("chClear").addEventListener("click", ()=>{ ta.value = ""; msg.textContent = ""; });
+  fi.addEventListener("change", async ()=>{
+    const notes = [];
+    for (const f of fi.files){
+      try{
+        const nums = extractPhones(await readPhoneFile(f));
+        const have = new Set(extractPhones(ta.value)), add = nums.filter(n=>!have.has(n));
+        if (add.length) ta.value = (ta.value.trim() ? ta.value.trim()+"\n" : "") + add.join("\n");
+        notes.push(`${f.name}: ${nums.length} số${add.length<nums.length?` (${nums.length-add.length} số trùng)`:""}`);
+      }catch(e){ notes.push(`${f.name}: không đọc được – ${e.message}`); }
+    }
+    msg.textContent = notes.join(" · ") + ` · Tổng: ${extractPhones(ta.value).length} số`;
+    fi.value = "";
+  });
+  ta.addEventListener("input", ()=>{ msg.textContent = `Tổng: ${extractPhones(ta.value).length} số`; });
 })();
 </script>
 </body>
