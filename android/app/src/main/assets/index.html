@@ -133,6 +133,7 @@ button.kh{background:#1f6f5c}
   <button type="button" data-tab="nha">Số nhà</button>
   <button type="button" data-tab="tk">Tài khoản – Mật khẩu</button>
   <button type="button" data-tab="nick">Nick MXH</button>
+  <button type="button" data-tab="mk">Luận mật khẩu</button>
   <button type="button" data-tab="hp">Hôn phối</button>
   <button type="button" data-tab="chon">Luận chọn số</button>
 </nav>
@@ -318,6 +319,28 @@ button.kh{background:#1f6f5c}
   <div class="hint">Sách (tr.517): ngày nay tên trên mạng, biệt danh được dùng nhiều hơn cả tên thật nên cũng mang từ trường năng lượng; tên phương Tây như Tom, Chanel, Jacky vẫn giải mã được bằng từ trường số. App đổi chữ cái trong nick theo bảng của sách (A=01 … Z=26), ghép với các chữ số kèm theo rồi tách cặp như số điện thoại; chọn nick và mật khẩu hóa giải hung tinh của căn cước, ngày sinh, họ tên và có tổ hợp hợp mục đích.</div>
 </div>
 <div class="card res" id="res-nick"><div class="toolbar"><button type="button" class="cpy" data-for="art-nick">Sao chép sang Word</button><span class="small msg"></span></div><div id="art-nick"></div></div>
+</section>
+
+<section class="pane" id="tab-mk">
+<div class="card">
+  <h2>Luận mật khẩu đang dùng & đề xuất mật khẩu mới</h2>
+  <form id="frmMk">
+    <div class="f"><label for="mkName">Họ và tên</label><input id="mkName" autocomplete="off"></div>
+    <div style="flex:1 1 170px"><label for="mkBirth">Ngày sinh</label><input id="mkBirth" inputmode="numeric" autocomplete="off"></div>
+    <div style="flex:0 1 130px"><label for="mkGender">Giới tính</label><select id="mkGender"><option value="nam">Nam</option><option value="nu">Nữ</option></select></div>
+    <div class="f"><label for="mkCC">Số căn cước</label><input id="mkCC" inputmode="numeric" autocomplete="off"></div>
+    <div class="f"><label for="mkMxh">Mật khẩu mạng xã hội đang dùng</label><input id="mkMxh" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+    <div class="f"><label for="mkPhone">Mật khẩu mở điện thoại đang dùng</label><input id="mkPhone" inputmode="numeric" autocomplete="off"></div>
+    <div class="f"><label for="mkBank">Mật khẩu / mã PIN ngân hàng đang dùng</label><input id="mkBank" inputmode="numeric" autocomplete="off"></div>
+    <div style="flex:1 1 100%"><label>Yêu cầu (mục đích muốn mật khẩu hỗ trợ)</label><div class="chk" id="mkPurpose"></div></div>
+    <div class="btns">
+      <button type="submit" data-view="detail">Báo cáo chi tiết</button>
+      <button type="submit" data-view="kh" class="kh">Báo cáo khách hàng</button>
+    </div>
+  </form>
+  <div class="hint">Nhập mật khẩu nào thì app luận mật khẩu đó theo sách: có hóa giải được hung tinh của căn cước, ngày sinh, họ tên không; hung tinh trong mật khẩu có được chế ngự không; có tổ hợp hợp yêu cầu không; cặp cuối; chữ số hợp cung mệnh. Chưa hợp thì app đề xuất mật khẩu mới cùng kiểu (cùng độ dài, giữ phần chữ của mật khẩu mạng xã hội) và thêm 4, 6, 8 số. App chạy offline, không gửi mật khẩu đi đâu – nên xóa báo cáo sau khi xem.</div>
+</div>
+<div class="card res" id="res-mk"><div class="toolbar"><button type="button" class="cpy" data-for="art-mk">Sao chép sang Word</button><span class="small msg"></span></div><div id="art-mk"></div></div>
 </section>
 
 <section class="pane" id="tab-hp">
@@ -2516,7 +2539,7 @@ function downloadDoc(node, fname, title){
 (function(){
   let top=false; try{ top = window.self===window.top; }catch(e){}
   if (!top) return;
-  const NAMES = {tt:"BanMenh", ht:"HoTen", xe:"BienSoXe", nha:"SoNha", tk:"TaiKhoan_MatKhau", nick:"NickMXH", hp:"HonPhoi", chon:"ChonSo"};
+  const NAMES = {tt:"BanMenh", ht:"HoTen", xe:"BienSoXe", nha:"SoNha", tk:"TaiKhoan_MatKhau", nick:"NickMXH", mk:"LuanMatKhau", hp:"HonPhoi", chon:"ChonSo"};
   document.querySelectorAll(".res .cpy").forEach(b=>{
     const id = b.dataset.for, tab = id.replace("art-","");
     const d = document.createElement("button"); d.type="button"; d.className="sec"; d.textContent="Tải file Word (.doc)"; d.style.marginLeft="8px";
@@ -3372,6 +3395,90 @@ document.getElementById("frmNick").addEventListener("submit", e=>{ e.preventDefa
 (function(){
   document.getElementById("nkPurpose").innerHTML = Object.keys(PURP).map(k=>`<label><input type="checkbox" value="${k}"${k==="tai"||k==="qn"?" checked":""}> ${PURP[k].name}</label>`).join("");
   bindName("nkName"); bindDate("nkBirth");
+})();
+</script>
+<script>
+/* ================= PHẦN 9: LUẬN MẬT KHẨU ĐANG DÙNG & ĐỀ XUẤT MẬT KHẨU MỚI ================= */
+function mkProfile(){
+  const name = val("mkName"), bd = parseDate(val("mkBirth")), g = val("mkGender");
+  const cc = val("mkCC") ? ccAnalyze(val("mkCC"), bd && bd.y) : null, bda = birthAnalyze(bd);
+  const nameA = name ? htRun(name, ["az"], "", bd && bd.y)[0] : null;
+  const kua = bd ? kuaOf(bd.y, g) : null, src = {};
+  const addSrc = (P, lab) => (P||[]).forEach(p=>{ if (isBad(p.key)) (src[p.key] = src[p.key] || new Set()).add(lab); });
+  addSrc(cc && cc.P, "căn cước"); addSrc(bda && bda.P, "ngày sinh"); addSrc(nameA && nameA.P, "họ tên");
+  const needs = Object.keys(src).map(k=>({key:k, from:[...src[k]]}));
+  const purps = [...document.querySelectorAll("#mkPurpose input:checked")].map(i=>i.value);
+  return {name, bd, g, cc, bda, nameA, kua, needs, purps};
+}
+function mkPkg(base, purps){
+  const seq = []; base.seq.concat(purps.flatMap(k=>PURP[k].seq)).forEach(q=>{ if (!seq.some(x=>x.join()===q.join())) seq.push(q); });
+  return {...base, seq, tail: [...new Set(base.tail.concat(purps.flatMap(k=>PURP[k].tail)))]};
+}
+function mkVerdict(r, pf){
+  const unres = r.P.filter((p,i)=>isBad(p.key) && !hungResolved(r.K,i)).length;
+  const all = r.solved.length === pf.needs.length, end0 = String(r.s||"").replace(/\|/g,"").endsWith("0");
+  if (all && !unres && isGood(r.tail) && !end0) return ["Hợp phong thủy","g"];
+  if ((r.solved.length>0 || !pf.needs.length) && unres<=1 && !isBad(r.tail)) return ["Hợp một phần","p"];
+  return ["Chưa hợp","b"];
+}
+const MK_TYPES = [
+  {id:"mkMxh", key:"mxh", name:"Mật khẩu mạng xã hội", pkg:()=>MC_PKG.ungthien, letters:true},
+  {id:"mkPhone", key:"phone", name:"Mật khẩu mở điện thoại", pkg:()=>MC_PKG.ungthien, letters:false},
+  {id:"mkBank", key:"bank", name:"Mật khẩu / mã PIN ngân hàng", pkg:()=>MC_PKG.ngankim, letters:false}
+];
+function renderMk(view){
+  const kh = view==="kh", pf = mkProfile();
+  const items = MK_TYPES.map(t=>({...t, pw: val(t.id)})).filter(t=>t.pw);
+  if (!items.length){ showRes("mk", `<p class="warn">Nhập ít nhất một mật khẩu (mạng xã hội, điện thoại hoặc ngân hàng) để luận.</p>`); return; }
+  if (!pf.cc && !pf.bda && !pf.name){ showRes("mk", `<p class="warn">Nhập họ tên, ngày sinh hoặc căn cước để luận mật khẩu theo bản mệnh.</p>`); return; }
+  const meta = `${pf.name?`${kh?"Khách hàng":"Họ tên"}: <b>${esc(pf.name)}</b> · `:""}${pf.bd?`Ngày sinh: ${esc(val("mkBirth"))} · `:""}${pf.purps.length?`Yêu cầu: ${pf.purps.map(k=>PURP[k].name).join(", ")} · `:""}Ngày lập: ${today()}`;
+  let h = head(kh ? "BÁO CÁO MẬT KHẨU HỢP PHONG THỦY" : "LUẬN MẬT KHẨU ĐANG DÙNG & ĐỀ XUẤT MẬT KHẨU MỚI", meta), k = 0; const N = ()=>(++k)+". ";
+  if (!kh){
+    let b = "";
+    if (pf.cc) b += `<p>Căn cước: mệnh cách ${starTag(pf.cc.main)}.</p>${chipsOf(pf.cc.P)}`;
+    if (pf.bda) b += `<p>Ngày sinh → dãy ${esc(pf.bda.s||"")}:</p>${chipsOf(pf.bda.P)}`;
+    if (pf.nameA) b += `<p>Họ tên (chữ cái A=1…Z=26): dãy ${esc(pf.nameA.S)}</p>${chipsOf(pf.nameA.P)}`;
+    if (pf.kua) b += `<p>Cung mệnh: ${pf.kua.cung} – ${pf.kua.nhom} tứ mệnh (chữ số hợp: ${GROUP_DIGITS[pf.kua.nhom].join(", ")}).</p>`;
+    b += pf.needs.length ? ul(pf.needs.map(x=>`${starTag(x.key)} (từ ${x.from.join(", ")}) – sách: ${HG[x.key].txt}`)) : `<p class="ok">Bản mệnh không có hung tinh cần hóa giải.</p>`;
+    h += sect(N()+"Bản mệnh", b);
+  }
+  const summary = [], hBefore = h; h = "";
+  items.forEach(t=>{
+    const cfg = {needs:pf.needs, kua:pf.kua, pkg: mkPkg(t.pkg(), pf.purps)};
+    const hasLetter = /[a-zA-ZÀ-ỹĐđ]/.test(t.pw), digitsOnly = /^\d+$/.test(t.pw);
+    const s = nickDigits(t.pw), r = {...tkEval(s, cfg), s};
+    let b = "";
+    if (!r.P || !r.P.length){ b += `<p class="warn">Mật khẩu quá ngắn để tách cặp số.</p>`; h += sect(N()+t.name, b); return; }
+    const v = mkVerdict(r, pf); summary.push([t.name, v]);
+    b += `<p>Mật khẩu đang dùng: <b style="font-size:20px;letter-spacing:2px">${esc(t.pw)}</b> – <span class="tag ${v[1]}">${v[0]}</span></p>`;
+    if (!t.letters && hasLetter) b += `<p class="warn">${t.key==="bank"?"Mã PIN ngân hàng":"Mật khẩu mở máy"} thường chỉ dùng chữ số; sách cũng dặn mật khẩu chỉ nên dùng chữ số.</p>`;
+    if (!digitsOnly && /[^a-zA-Z0-9À-ỹĐđ\s]/.test(t.pw)) b += `<p class="small">Ký tự đặc biệt trong mật khẩu làm đứt chuỗi cặp số – app đã tính theo đúng vị trí đang đặt.</p>`;
+    if (!kh) b += chipsOf(r.P) + ul(tkChecks(r, cfg));
+    else b += `<p>${v[1]==="g" ? "Mật khẩu này hợp bản mệnh, có thể tiếp tục dùng." : v[1]==="p" ? "Mật khẩu này hợp một phần – nên cân nhắc đổi sang mật khẩu đề xuất để hóa giải trọn vẹn." : "Mật khẩu này chưa hợp bản mệnh – nên đổi sang mật khẩu đề xuất."}</p>`;
+    // Đề xuất
+    if (v[1] !== "g" || !kh){
+      b += `<p class="sub">${v[1]==="g" ? "Phương án tham khảo khác" : "Đề xuất mật khẩu mới hợp phong thủy"}</p>`;
+      if (digitsOnly){
+        const L = Math.max(4, Math.min(12, t.pw.length));
+        const same = tkSearch(L, "", cfg, 3);
+        if (same.length) b += `<p>Cùng độ dài ${L} số: <b style="font-size:20px;letter-spacing:2px">${esc(same[0].s)}</b>${same.length>1?` · dự phòng ${same.slice(1).map(x=>esc(x.s)).join(", ")}`:""}</p>${kh?"":chipsOf(same[0].P)+ul(tkChecks(same[0], cfg))}`;
+      }
+      const word = hasLetter ? t.pw.replace(/[^a-zA-ZÀ-ỹĐđ]/g,"") : "";
+      b += pw3Block(cfg, kh, t.letters ? (word || (pf.name ? unaccent(pf.name).split(/\s+/).pop() : "")) : "");
+      if (t.letters && word) b += `<p class="small">Mật khẩu chữ + số + ký tự đặc biệt giữ phần chữ "${esc(word)}" của mật khẩu đang dùng.</p>`;
+    }
+    h += sect(N()+t.name, b);
+  });
+  const typeSecs = h; h = hBefore;
+  if (summary.length) h += sect("Tóm tắt", `<table><tr><th>Mật khẩu</th><th>Kết luận</th></tr>${summary.map(x=>`<tr><td>${x[0]}</td><td><span class="tag ${x[1][1]}">${x[1][0]}</span></td></tr>`).join("")}</table>`);
+  h += typeSecs;
+  h += sect(N()+"Cách dùng", ul(["Sách: mật khẩu chỉ nên dùng cho tối đa 2 thiết bị/ứng dụng; nhập thường xuyên để kích hoạt.", `Mật khẩu điện thoại, mạng xã hội theo ${MC_PKG.ungthien.name} (thời hạn ${MC_PKG.ungthien.life}); mật khẩu ngân hàng theo ${MC_PKG.ngankim.name}.`, "Không dùng ngày sinh, số điện thoại làm mật khẩu; bật xác thực 2 lớp, sinh trắc học/OTP; không chia sẻ mật khẩu.", "Báo cáo có chứa mật khẩu – xóa hoặc cất giữ cẩn thận sau khi xem."]));
+  showRes("mk", h + (kh ? KH_NOTE : foot));
+}
+document.getElementById("frmMk").addEventListener("submit", e=>{ e.preventDefault(); renderMk((e.submitter && e.submitter.dataset.view) || "detail"); });
+(function(){
+  document.getElementById("mkPurpose").innerHTML = Object.keys(PURP).map(k=>`<label><input type="checkbox" value="${k}"> ${PURP[k].name}</label>`).join("");
+  bindName("mkName"); bindDate("mkBirth");
 })();
 </script>
 <script>
