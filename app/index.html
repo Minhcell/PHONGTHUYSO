@@ -132,6 +132,7 @@ button.kh{background:#1f6f5c}
   <button type="button" data-tab="xe">Biển số xe</button>
   <button type="button" data-tab="nha">Số nhà</button>
   <button type="button" data-tab="tk">Tài khoản – Mật khẩu</button>
+  <button type="button" data-tab="nick">Nick MXH</button>
   <button type="button" data-tab="hp">Hôn phối</button>
   <button type="button" data-tab="chon">Luận chọn số</button>
 </nav>
@@ -294,6 +295,30 @@ button.kh{background:#1f6f5c}
   <div class="hint">Sách xem tài khoản ngân hàng là "kho tiền di động": nhìn tiền đến từ đâu, đi đâu. Mật khẩu dùng thường xuyên cũng tích lũy năng lượng. Mật khẩu chỉ phân tích trên máy này, không gửi đi đâu.</div>
 </div>
 <div class="card res" id="res-tk"><div class="toolbar"><button type="button" class="cpy" data-for="art-tk">Sao chép sang Word</button><span class="small msg"></span></div><div id="art-tk"></div></div>
+</section>
+
+<section class="pane" id="tab-nick">
+<div class="card">
+  <h2>Đặt nick mạng xã hội & mật khẩu hợp phong thủy</h2>
+  <form id="frmNick">
+    <div class="f"><label for="nkName">Họ và tên</label><input id="nkName" autocomplete="off"></div>
+    <div style="flex:1 1 170px"><label for="nkBirth">Ngày sinh</label><input id="nkBirth" inputmode="numeric" autocomplete="off"></div>
+    <div style="flex:0 1 130px"><label for="nkGender">Giới tính</label><select id="nkGender"><option value="nam">Nam</option><option value="nu">Nữ</option></select></div>
+    <div class="f"><label for="nkCC">Số căn cước</label><input id="nkCC" inputmode="numeric" autocomplete="off"></div>
+    <div class="f"><label for="nkWord">Tên gọi / từ muốn có trong nick (không bắt buộc)</label><input id="nkWord" autocomplete="off"></div>
+    <div style="flex:1 1 200px"><label for="nkNet">Mạng xã hội</label><select id="nkNet"><option>Facebook</option><option>Zalo</option><option>TikTok</option><option>Instagram</option><option>YouTube</option><option>Gmail / Email</option><option>Telegram</option><option>Khác</option></select></div>
+    <div style="flex:0 1 160px"><label for="nkSuffix">Số kèm sau nick</label><select id="nkSuffix"><option value="auto">Tự chọn (0–4 số)</option><option value="0">Không kèm số</option><option value="2">2 số</option><option value="3">3 số</option><option value="4">4 số</option></select></div>
+    <div style="flex:0 1 160px"><label for="nkPwLen">Độ dài mật khẩu</label><select id="nkPwLen"><option value="8">8 ký tự</option><option value="10">10 ký tự</option><option value="12">12 ký tự</option></select></div>
+    <div style="flex:1 1 100%"><label>Mục đích</label><div class="chk" id="nkPurpose"></div></div>
+    <div style="flex:1 1 100%"><label for="nkList">Nick muốn kiểm tra (không bắt buộc, mỗi nick một dòng) – app luận và chọn nick hợp nhất</label><textarea id="nkList"></textarea></div>
+    <div class="btns">
+      <button type="submit" data-view="detail">Báo cáo chi tiết</button>
+      <button type="submit" data-view="kh" class="kh">Báo cáo khách hàng</button>
+    </div>
+  </form>
+  <div class="hint">Sách (tr.517): ngày nay tên trên mạng, biệt danh được dùng nhiều hơn cả tên thật nên cũng mang từ trường năng lượng; tên phương Tây như Tom, Chanel, Jacky vẫn giải mã được bằng từ trường số. App đổi chữ cái trong nick theo bảng của sách (A=01 … Z=26), ghép với các chữ số kèm theo rồi tách cặp như số điện thoại; chọn nick và mật khẩu hóa giải hung tinh của căn cước, ngày sinh, họ tên và có tổ hợp hợp mục đích.</div>
+</div>
+<div class="card res" id="res-nick"><div class="toolbar"><button type="button" class="cpy" data-for="art-nick">Sao chép sang Word</button><span class="small msg"></span></div><div id="art-nick"></div></div>
 </section>
 
 <section class="pane" id="tab-hp">
@@ -2492,7 +2517,7 @@ function downloadDoc(node, fname, title){
 (function(){
   let top=false; try{ top = window.self===window.top; }catch(e){}
   if (!top) return;
-  const NAMES = {tt:"BanMenh", ht:"HoTen", xe:"BienSoXe", nha:"SoNha", tk:"TaiKhoan_MatKhau", hp:"HonPhoi", chon:"ChonSo"};
+  const NAMES = {tt:"BanMenh", ht:"HoTen", xe:"BienSoXe", nha:"SoNha", tk:"TaiKhoan_MatKhau", nick:"NickMXH", hp:"HonPhoi", chon:"ChonSo"};
   document.querySelectorAll(".res .cpy").forEach(b=>{
     const id = b.dataset.for, tab = id.replace("art-","");
     const d = document.createElement("button"); d.type="button"; d.className="sec"; d.textContent="Tải file Word (.doc)"; d.style.marginLeft="8px";
@@ -3161,6 +3186,130 @@ function appendListTable(pf, kh){
     fi.value = "";
   });
   ta.addEventListener("input", ()=>{ msg.textContent = `Tổng: ${extractPhones(ta.value).length} số`; });
+})();
+</script>
+<script>
+/* ================= PHẦN 8: ĐẶT NICK MẠNG XÃ HỘI & MẬT KHẨU THEO BẢN MỆNH ================= */
+// Đổi nick thành dãy số theo bảng chữ cái của sách (A=01 … Z=26), chữ số giữ nguyên, bỏ ký tự khác
+const nickDigits = n => unaccent(String(n||"")).toUpperCase().split("").map(c=>/[A-Z]/.test(c) ? L2N(c) : /[0-9]/.test(c) ? c : "").join("");
+function nickProfile(){
+  const name = val("nkName"), bd = parseDate(val("nkBirth")), g = val("nkGender");
+  const cc = val("nkCC") ? ccAnalyze(val("nkCC"), bd && bd.y) : null, bda = birthAnalyze(bd);
+  const nameA = name ? htRun(name, ["az"], "", bd && bd.y)[0] : null;
+  const kua = bd ? kuaOf(bd.y, g) : null;
+  const src = {};
+  const addSrc = (P, lab) => (P||[]).forEach(p=>{ if (isBad(p.key)) (src[p.key] = src[p.key] || new Set()).add(lab); });
+  addSrc(cc && cc.P, "căn cước"); addSrc(bda && bda.P, "ngày sinh"); addSrc(nameA && nameA.P, "họ tên");
+  const needs = Object.keys(src).map(k=>({key:k, from:[...src[k]]}));
+  let purps = [...document.querySelectorAll("#nkPurpose input:checked")].map(i=>i.value); if (!purps.length) purps = ["tai"];
+  const pkg = {name:"mục đích đã chọn", seq: purps.flatMap(k=>PURP[k].seq), tail: [...new Set(purps.flatMap(k=>PURP[k].tail))], avoid: []};
+  return {name, bd, g, cc, bda, nameA, kua, needs, purps, pkg};
+}
+function nickEval(nick, pf){
+  const s = nickDigits(nick); if (s.length < 2) return {sc:-9999, P:[], K:[], s};
+  const r = tkEval(s, {needs:pf.needs, kua:null, pkg:pf.pkg});
+  return {...r, s, nick};
+}
+function nickBases(pf){
+  const toks = unaccent(pf.name||"").toLowerCase().split(/\s+/).map(t=>t.replace(/[^a-z]/g,"")).filter(Boolean);
+  const w = unaccent(val("nkWord")||"").toLowerCase().replace(/[^a-z0-9]/g,"");
+  const B = new Set();
+  if (toks.length){
+    const ho = toks[0], ten = toks[toks.length-1], dem = toks.slice(1,-1);
+    B.add(ten); B.add(ten+ho); B.add(ho+ten); B.add(toks.slice(1).join("")); B.add(toks.join(""));
+    if (dem.length){ B.add(dem.join("")+ten); B.add(ten+dem.join("")); B.add(dem.map(x=>x[0]).join("")+ten); }
+    B.add(toks.slice(0,-1).map(x=>x[0]).join("")+ten); B.add(ten+toks.slice(0,-1).map(x=>x[0]).join(""));
+  }
+  if (w){ B.add(w); if (toks.length){ B.add(w+toks[toks.length-1]); B.add(toks[toks.length-1]+w); } }
+  return [...B].filter(b=>b.length>=2 && b.length<=20);
+}
+function nickSearch(pf){
+  const mode = val("nkSuffix"), lens = mode==="auto" ? [0,2,3,4] : [+mode];
+  const out = [];
+  nickBases(pf).forEach(base=>{
+    let best = null;
+    lens.forEach(L=>{
+      const max = L ? Math.pow(10,L) : 1;
+      for (let x=0; x<max; x++){
+        const suf = L ? String(x).padStart(L,"0") : "";
+        if (suf.endsWith("0") || /^0/.test(suf) && L>0) continue; // tránh đuôi 0 và số 0 đầu
+        const r = nickEval(base+suf, pf); r.sc -= L; // ưu tiên nick ngắn, dễ nhớ
+        if (!best || r.sc > best.sc) best = {...r, base, suf};
+      }
+    });
+    if (best) out.push(best);
+  });
+  return out.sort((a,b)=>b.sc-a.sc);
+}
+function pwSearch(pf, len, word){
+  // 2 phương án: (1) theo sách – chỉ chữ số; (2) khi mạng xã hội bắt buộc có chữ: chữ đầu viết hoa + dãy số theo sách
+  const cfg = {needs:pf.needs, kua:pf.kua, pkg:MC_PKG.ungthien};
+  const num = tkSearch(len, "", cfg, 3);
+  const w = (word || "").replace(/[^a-z]/gi,"").slice(0, Math.max(2, len-6));
+  let mix = [];
+  if (w){
+    const W = w[0].toUpperCase()+w.slice(1).toLowerCase(), pre = nickDigits(W), L = Math.max(4, len - W.length);
+    mix = tkSearch(pre.length + L, pre, cfg, 3).map(r=>({...r, show: W + r.s.slice(pre.length)}));
+  }
+  return {num, mix, cfg};
+}
+function nickChecks(r, pf){
+  const li = [];
+  li.push(`Dãy số của nick: ${esc(r.s)}`);
+  pf.needs.forEach(x=>li.push(r.solved.includes(x.key) ? `<span class="ok">✓ Hóa giải ${nameOf(x.key)} của bản mệnh (từ ${x.from.join(", ")}).</span>` : `<span class="warn">✗ Chưa hóa giải ${nameOf(x.key)} của bản mệnh.</span>`));
+  r.P.forEach((p,i)=>{ if (isBad(p.key)) li.push(hungResolved(r.K,i) ? `<span class="ok">✓ ${esc(p.raw)} ${nameOf(p.key)} có cát tinh chế ngự.</span>` : `<span class="warn">✗ ${esc(p.raw)} ${nameOf(p.key)} chưa được chế ngự.</span>`); });
+  pf.purps.forEach(k=>{ const hit = PURP[k].seq.filter(q=>hasSeq(r.K,q)); li.push(hit.length ? `<span class="ok">✓ ${PURP[k].name}: ${hit.map(q=>q.map(nameOf).join(" → ")).join("; ")}.</span>` : `– ${PURP[k].name}: chưa có tổ hợp đặc trưng.`); });
+  li.push(`Cặp cuối: ${nameOf(r.tail)} – ${STARS[r.tail].kw}.`);
+  return li;
+}
+function renderNick(view){
+  const kh = view==="kh", pf = nickProfile();
+  if (!pf.name && !pf.cc && !pf.bda){ showRes("nick", `<p class="warn">Nhập họ tên (và nên có ngày sinh, căn cước) để đặt nick hợp bản mệnh.</p>`); return; }
+  const net = val("nkNet"), meta = `${pf.name?`${kh?"Khách hàng":"Họ tên"}: <b>${esc(pf.name)}</b> · `:""}Mạng xã hội: ${esc(net)} · Mục đích: ${pf.purps.map(k=>PURP[k].name).join(", ")} · Ngày lập: ${today()}`;
+  let h = head(kh ? "ĐỀ XUẤT NICK MẠNG XÃ HỘI & MẬT KHẨU" : "LUẬN ĐẶT NICK MẠNG XÃ HỘI & MẬT KHẨU", meta), k = 0; const N = ()=>(++k)+". ";
+  if (!kh){
+    let b = "";
+    if (pf.cc) b += `<p>Căn cước: mệnh cách ${starTag(pf.cc.main)}.</p>${chipsOf(pf.cc.P)}`;
+    if (pf.bda) b += `<p>Ngày sinh → dãy ${esc(pf.bda.s||"")}:</p>${chipsOf(pf.bda.P)}`;
+    if (pf.nameA) b += `<p>Họ tên (chữ cái A=1…Z=26): dãy ${esc(pf.nameA.S)}</p>${chipsOf(pf.nameA.P)}`;
+    b += pf.needs.length ? ul(pf.needs.map(x=>`${starTag(x.key)} (từ ${x.from.join(", ")}) – sách: ${HG[x.key].txt}`)) : `<p class="ok">Bản mệnh không có hung tinh cần hóa giải.</p>`;
+    h += sect(N()+"Bản mệnh", b);
+  } else if (pf.cc){ h += sect(N()+"Bản mệnh", `<p>${MC[pf.cc.main].nc}</p>`); }
+  // Nick
+  const listRaw = val("nkList").trim();
+  let nicks, fromList = false;
+  if (listRaw){ fromList = true; nicks = [...new Set(listRaw.split(/[\n,;]+/).map(x=>x.trim()).filter(Boolean))].map(n=>({...nickEval(n, pf), nick:n})).sort((a,b)=>b.sc-a.sc); }
+  else nicks = nickSearch(pf);
+  const show = r => r.nick || (r.base + r.suf);
+  let nb = "";
+  if (!nicks.length) nb = `<p class="warn">Không tạo được nick – kiểm tra họ tên / từ muốn dùng.</p>`;
+  else {
+    const b = nicks[0], nk = show(b);
+    nb += `<div class="detail good" style="margin:8px 0"><b>${fromList?"Nick được chọn":"Nick gợi ý tốt nhất"}</b><p style="font-size:24px;font-weight:700;letter-spacing:1px;margin:6px 0">${esc(nk)}</p>`;
+    if (!fromList && nk.length>4) nb += `<p class="small">Có thể viết: ${esc(b.base)}.${esc(b.suf)} · ${esc(b.base)}_${esc(b.suf)} · ${esc(b.base.charAt(0).toUpperCase()+b.base.slice(1))}${esc(b.suf)} (dấu chấm, gạch dưới, chữ hoa không làm đổi năng lượng)</p>`;
+    nb += kh ? "" : chipsOf(b.P) + ul(nickChecks(b, pf));
+    nb += `</div>`;
+    const rest = nicks.slice(1, kh ? 4 : 8);
+    if (rest.length) nb += `<p class="sub">${fromList?"Các nick còn lại (xếp theo mức hợp)":"Nick khác"}</p>` + (kh ? ul(rest.map(r=>`<b>${esc(show(r))}</b>`)) : `<table><tr><th>Nick</th><th>Hóa giải bản mệnh</th><th>Các cặp</th></tr>${rest.map(r=>`<tr><td style="white-space:nowrap"><b>${esc(show(r))}</b></td><td>${pf.needs.length?`${r.solved.length}/${pf.needs.length}`:"–"}</td><td>${r.P.map(p=>`${esc(p.raw)} ${starTag(p.key)}`).join(" ")}</td></tr>`).join("")}</table>`);
+    nb += `<p class="small">Kiểm tra nick còn trống trên ${esc(net)} trước khi dùng; nếu đã có người dùng, chọn nick kế tiếp trong danh sách. Nên dùng cùng một nick trên các mạng để năng lượng được kích hoạt thường xuyên.</p>`;
+  }
+  h += sect(N()+(fromList?"Chọn nick trong danh sách":"Nick mạng xã hội"), nb);
+  // Mật khẩu
+  const len = +val("nkPwLen") || 8, word = nicks.length ? (nicks[0].base || unaccent(show(nicks[0])).replace(/[^a-z]/gi,"")) : "";
+  const PW = pwSearch(pf, len, word);
+  let pb = "";
+  const pwRow = (lab, r, txt) => `<div class="detail good" style="margin:8px 0"><b>${lab}</b><p style="font-size:22px;font-weight:700;letter-spacing:2px;margin:6px 0">${esc(txt)}</p>${kh ? "" : chipsOf(r.P) + ul(tkChecks(r, PW.cfg))}</div>`;
+  if (PW.num.length) pb += pwRow("Phương án 1 – theo sách: chỉ dùng chữ số", PW.num[0], PW.num[0].s);
+  if (PW.mix.length) pb += pwRow("Phương án 2 – khi mạng xã hội bắt buộc có chữ cái", PW.mix[0], PW.mix[0].show);
+  pb += `<p class="sub">Cách dùng</p>${ul(["Sách: mật khẩu chỉ nên dùng cho tối đa 2 tài khoản/thiết bị; nhập thường xuyên để kích hoạt.", `Theo ${MC_PKG.ungthien.name}: thời hạn ${MC_PKG.ungthien.life}, sau đó nên đổi.`, "Mật khẩu có tên và chữ số dễ bị đoán – bật xác thực 2 lớp (mã OTP/ứng dụng xác thực) cho tài khoản mạng xã hội, không chia sẻ mật khẩu."])}`;
+  h += sect(N()+"Mật khẩu mạng xã hội", pb);
+  h += `<p class="small">Sách: số và tên tốt không thay thế được năng lực và cách sống; cần kết hợp mệnh lý cá nhân. App tính theo nguyên tắc công khai trong sách.</p>`;
+  showRes("nick", h + (kh ? KH_NOTE : foot));
+}
+document.getElementById("frmNick").addEventListener("submit", e=>{ e.preventDefault(); renderNick((e.submitter && e.submitter.dataset.view) || "detail"); });
+(function(){
+  document.getElementById("nkPurpose").innerHTML = Object.keys(PURP).map(k=>`<label><input type="checkbox" value="${k}"${k==="tai"||k==="qn"?" checked":""}> ${PURP[k].name}</label>`).join("");
+  bindName("nkName"); bindDate("nkBirth");
 })();
 </script>
 <script>
