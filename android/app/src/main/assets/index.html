@@ -284,7 +284,6 @@ button.kh{background:#1f6f5c}
     <div style="flex:1 1 170px"><label for="tkBirth">Ngày sinh</label><input id="tkBirth" inputmode="numeric" autocomplete="off"></div>
     <div style="flex:0 1 130px"><label for="tkGender">Giới tính</label><select id="tkGender"><option value="nam">Nam</option><option value="nu">Nữ</option></select></div>
     <div style="flex:1 1 220px"><label for="tkMode">Cần tính</label><select id="tkMode"><option value="all">Tất cả (mật khẩu ngân hàng, mật khẩu điện thoại, số tài khoản)</option><option value="mkbank">Mật khẩu ngân hàng</option><option value="mkphone">Mật khẩu mở điện thoại</option><option value="stk">Số tài khoản ngân hàng</option></select></div>
-    <div style="flex:0 1 150px"><label for="tkMkLen">Độ dài mật khẩu</label><select id="tkMkLen"><option value="6">6 số</option><option value="4">4 số</option><option value="8">8 số</option></select></div>
     <div style="flex:1 1 200px"><label for="tkBank">Ngân hàng</label><select id="tkBank"></select></div>
     <div style="flex:0 1 150px"><label for="tkLen">Độ dài số tài khoản</label><input id="tkLen" inputmode="numeric" maxlength="2"></div>
     <div style="flex:0 1 170px"><label for="tkPre">Đầu số cố định (nếu có)</label><input id="tkPre" inputmode="numeric" autocomplete="off"></div>
@@ -308,7 +307,6 @@ button.kh{background:#1f6f5c}
     <div class="f"><label for="nkWord">Tên gọi / từ muốn có trong nick (không bắt buộc)</label><input id="nkWord" autocomplete="off"></div>
     <div style="flex:1 1 200px"><label for="nkNet">Mạng xã hội</label><select id="nkNet"><option>Facebook</option><option>Zalo</option><option>TikTok</option><option>Instagram</option><option>YouTube</option><option>Gmail / Email</option><option>Telegram</option><option>Khác</option></select></div>
     <div style="flex:0 1 160px"><label for="nkSuffix">Số kèm sau nick</label><select id="nkSuffix"><option value="auto">Tự chọn (0–4 số)</option><option value="0">Không kèm số</option><option value="2">2 số</option><option value="3">3 số</option><option value="4">4 số</option></select></div>
-    <div style="flex:0 1 160px"><label for="nkPwLen">Độ dài mật khẩu</label><select id="nkPwLen"><option value="8">8 ký tự</option><option value="10">10 ký tự</option><option value="12">12 ký tự</option></select></div>
     <div style="flex:1 1 100%"><label>Mục đích</label><div class="chk" id="nkPurpose"></div></div>
     <div style="flex:1 1 100%"><label for="nkList">Nick muốn kiểm tra (không bắt buộc, mỗi nick một dòng) – app luận và chọn nick hợp nhất</label><textarea id="nkList"></textarea></div>
     <div class="btns">
@@ -3024,6 +3022,20 @@ function tkBlock(title, list, cfg, isPw, kh){
   if (list.length>1) h += `<p class="sub">${kh?"Phương án khác":"Phương án khác (xếp theo mức đạt tiêu chí sách)"}</p>` + (kh ? ul(list.slice(1,4).map(r=>`<b style="letter-spacing:2px">${esc(isPw?r.s:fmtAcc(r.s))}</b>`)) : `<table><tr><th>Dãy số</th><th>Các cặp</th></tr>${list.slice(1,4).map(r=>`<tr><td style="white-space:nowrap;font-weight:700;letter-spacing:1px">${esc(isPw?r.s:fmtAcc(r.s))}</td><td>${r.P.map(p=>`${esc(p.raw)} ${starTag(p.key)}`).join(" ")}</td></tr>`).join("")}</table>`);
   return h;
 }
+/* 3 mật khẩu số tốt nhất (4, 6, 8 số) + tùy chọn mật khẩu chữ – số – ký tự đặc biệt */
+function pw3Block(cfg, kh, word){
+  const rows = [];
+  [4,6,8].forEach(L=>{ const r = tkSearch(L, "", cfg, 3); if (r.length) rows.push({lab:`${L} số`, r:r[0], show:r[0].s, alt:r.slice(1,3).map(x=>x.s)}); });
+  if (word){
+    let W = String(word).replace(/[^a-z]/gi,""); if (W.length<3) W = (W+"minh").slice(0,4); W = W.slice(0,5); W = W[0].toUpperCase()+W.slice(1).toLowerCase();
+    const pre = nickDigits(W), dl = Math.max(4, 8 - W.length - 1);
+    const r = tkSearch(pre.length + dl, pre, cfg, 3);
+    if (r.length) rows.push({lab:"Chữ + số + ký tự đặc biệt", r:r[0], show: W + "@" + r[0].s.slice(pre.length), alt: r.slice(1,3).map(x=>W + "#" + x.s.slice(pre.length)), mix:true});
+  }
+  let h = `<table><tr><th>Loại</th><th>Mật khẩu</th><th>${kh?"Dự phòng":"Phương án khác"}</th></tr>${rows.map(x=>`<tr><td><b>${x.lab}</b></td><td style="font-size:20px;font-weight:700;letter-spacing:2px;white-space:nowrap">${esc(x.show)}</td><td style="white-space:nowrap">${x.alt.map(esc).join("<br>")}</td></tr>`).join("")}</table>`;
+  if (!kh) h += rows.map(x=>`<div class="detail good" style="margin:8px 0"><b>${x.lab}: ${esc(x.show)}</b>${chipsOf(x.r.P)}${ul(tkChecks(x.r, cfg))}${x.mix?`<p class="small">Chữ cái tính theo bảng của sách (A=01 … Z=26) và nối liền với dãy số; ký tự đặc biệt "@" đặt giữa chữ và số, không chen vào giữa dãy số nên không làm gãy các cặp số.</p>`:""}</div>`).join("");
+  return h;
+}
 function tkChon(view){
   const kh = view==="chonkh", pf = tkProfile(), mode = val("tkMode");
   if (!pf.cc && !pf.bda && !pf.name){ showRes("tk", `<p class="warn">Nhập họ tên, ngày sinh hoặc căn cước để luận chọn theo bản mệnh.</p>`); return; }
@@ -3040,15 +3052,14 @@ function tkChon(view){
     b += pf.needs.length ? `<p><b>Hung tinh tiên thiên cần số hậu thiên hóa giải:</b></p>${ul(pf.needs.map(x=>`${starTag(x.key)} (từ ${x.from.join(", ")}) – sách: ${HG[x.key].txt}`))}` : `<p class="ok">Bản mệnh không có hung tinh cần hóa giải.</p>`;
     h += sect(N()+"Bản mệnh (tiên thiên)", b + `<p class="small">Sách: số căn cước, ngày sinh, họ tên là tiên thiên không đổi; mật khẩu, số tài khoản là số hậu thiên dùng để hóa giải hung tinh tiên thiên.</p>`);
   }
-  const mkLen = +val("tkMkLen") || 6;
   const PW_USE = ["Chỉ dùng chữ số, không chen ký tự đặc biệt.","Một mật khẩu chỉ đặt tối đa trên 2 thiết bị/ứng dụng – nhiều hơn sẽ quá cường, phản tác dụng.","Nhập thường xuyên để kích hoạt; không chia sẻ cho người khác.","Mật khẩu chỉ gồm chữ số kém an toàn hơn – không dùng ngày sinh, số điện thoại; bật thêm sinh trắc học/OTP của ngân hàng."];
   if (mode==="all" || mode==="mkbank"){
     const cfg = {needs:pf.needs, kua:pf.kua, pkg:MC_PKG.ngankim};
-    h += sect(N()+"Mật khẩu ứng dụng / thẻ ngân hàng – "+MC_PKG.ngankim.name, tkBlock(kh?"Mật khẩu gợi ý":"Kết quả", tkSearch(mkLen, "", cfg, 4), cfg, true, kh) + `<p class="sub">Cách dùng</p>${ul(PW_USE)}`);
+    h += sect(N()+"Mật khẩu ứng dụng / thẻ ngân hàng – "+MC_PKG.ngankim.name, pw3Block(cfg, kh, "") + `<p class="sub">Cách dùng</p>${ul(PW_USE)}`);
   }
   if (mode==="all" || mode==="mkphone"){
     const cfg = {needs:pf.needs, kua:pf.kua, pkg:MC_PKG.ungthien};
-    h += sect(N()+"Mật khẩu mở điện thoại – "+MC_PKG.ungthien.name, tkBlock(kh?"Mật khẩu gợi ý":"Kết quả", tkSearch(mkLen, "", cfg, 4), cfg, true, kh) + `<p class="small">Thời hạn theo sách: ${MC_PKG.ungthien.life}; sau đó nên đổi mật cách để tránh thoái trào.</p>`);
+    h += sect(N()+"Mật khẩu mở điện thoại – "+MC_PKG.ungthien.name, pw3Block(cfg, kh, "") + `<p class="small">Thời hạn theo sách: ${MC_PKG.ungthien.life}; sau đó nên đổi mật cách để tránh thoái trào.</p>`);
   }
   if (mode==="all" || mode==="stk"){
     const bank = BANKS.find(b=>b[0]===val("tkBank")) || BANKS[0];
@@ -3295,12 +3306,8 @@ function renderNick(view){
   }
   h += sect(N()+(fromList?"Chọn nick trong danh sách":"Nick mạng xã hội"), nb);
   // Mật khẩu
-  const len = +val("nkPwLen") || 8, word = nicks.length ? (nicks[0].base || unaccent(show(nicks[0])).replace(/[^a-z]/gi,"")) : "";
-  const PW = pwSearch(pf, len, word);
-  let pb = "";
-  const pwRow = (lab, r, txt) => `<div class="detail good" style="margin:8px 0"><b>${lab}</b><p style="font-size:22px;font-weight:700;letter-spacing:2px;margin:6px 0">${esc(txt)}</p>${kh ? "" : chipsOf(r.P) + ul(tkChecks(r, PW.cfg))}</div>`;
-  if (PW.num.length) pb += pwRow("Phương án 1 – theo sách: chỉ dùng chữ số", PW.num[0], PW.num[0].s);
-  if (PW.mix.length) pb += pwRow("Phương án 2 – khi mạng xã hội bắt buộc có chữ cái", PW.mix[0], PW.mix[0].show);
+  const word = nicks.length ? (nicks[0].base || unaccent(show(nicks[0])).replace(/[^a-z]/gi,"")) : unaccent(pf.name||"").split(/\s+/).pop();
+  let pb = `<p>3 mật khẩu số tốt nhất (4, 6, 8 số – theo sách chỉ dùng chữ số) và 1 mật khẩu chữ + số + ký tự đặc biệt cho trang bắt buộc.</p>` + pw3Block({needs:pf.needs, kua:pf.kua, pkg:MC_PKG.ungthien}, kh, word);
   pb += `<p class="sub">Cách dùng</p>${ul(["Sách: mật khẩu chỉ nên dùng cho tối đa 2 tài khoản/thiết bị; nhập thường xuyên để kích hoạt.", `Theo ${MC_PKG.ungthien.name}: thời hạn ${MC_PKG.ungthien.life}, sau đó nên đổi.`, "Mật khẩu có tên và chữ số dễ bị đoán – bật xác thực 2 lớp (mã OTP/ứng dụng xác thực) cho tài khoản mạng xã hội, không chia sẻ mật khẩu."])}`;
   h += sect(N()+"Mật khẩu mạng xã hội", pb);
   h += `<p class="small">Sách: số và tên tốt không thay thế được năng lực và cách sống; cần kết hợp mệnh lý cá nhân. App tính theo nguyên tắc công khai trong sách.</p>`;
